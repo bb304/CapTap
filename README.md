@@ -23,7 +23,32 @@ Infrastructure:
 
 ## Project Status
 
-Phase 0 complete. Phase 1 (backend foundation) complete. Authentication and domain features are not implemented yet.
+| Phase | Status | Description |
+|-------|--------|-------------|
+| Phase 0 — Environment & project setup | Complete | Repo layout, Expo app, ASP.NET solution, Docker Postgres, health/Swagger scaffolding |
+| Phase 1 — Backend foundation | Complete | Clean Architecture, EF Core, DI, repositories, middleware, config, tests |
+| Phase 2 — Authentication | Not started | Register/login, JWT, refresh tokens, email verification |
+| Later phases | Not started | Medications, NFC, dashboard, offline, deployment |
+
+### Completed in Phase 1
+
+- Clean Architecture layers (`Api` → `Application` → `Domain`; `Infrastructure` → Application/Domain)
+- Entity Framework Core + PostgreSQL (`ApplicationDbContext`, migrations pipeline)
+- `BaseEntity` with UUID + audit timestamps
+- Generic repository + unit of work abstractions
+- Dependency injection extensions (`AddApplicationServices`, `AddInfrastructureServices`, `AddDatabase`, Swagger)
+- Global exception middleware with safe `ApiResponse` errors
+- Health endpoint with database check (`GET /health`)
+- Swagger/OpenAPI (JWT security scheme prepared, not enforced)
+- Configuration: `DatabaseSettings`, `JwtSettings`, `ApplicationSettings` + env overrides
+- xUnit + FluentAssertions tests (Application + Infrastructure with Testcontainers)
+
+### Not in Phase 1 (intentionally deferred)
+
+- Authentication / JWT issuance
+- Domain entities (User, Medication, etc.)
+- Medication, NFC, dashboard, or other business APIs
+- Rate limiting and FluentValidation (planned before/with auth)
 
 ## Backend Architecture
 
