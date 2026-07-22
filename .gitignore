@@ -1,0 +1,76 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# IDE / editors
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.user
+*.suo
+*.swp
+*~
+
+# .NET
+**/bin/
+**/obj/
+**/out/
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.snupkg
+project.lock.json
+artifacts/
+TestResults/
+*.DotSettings.user
+
+# Node / Expo / React Native
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.expo/
+.expo-shared/
+dist/
+web-build/
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+*.orig.*
+metro-cache/
+
+# Native builds
+ios/Pods/
+ios/build/
+android/app/build/
+android/build/
+android/.gradle/
+*.apk
+*.aab
+*.ipa
+
+# Coverage / tests
+coverage/
+*.lcov
+.nyc_output/
+
+# Docker
+*.log
+
+# Local tooling
+.turbo/
+.cache/
+tmp/
+temp/
