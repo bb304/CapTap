@@ -92,7 +92,9 @@ public class DomainEntityTests : IAsyncLifetime
             Medication = medication,
             Frequency = FrequencyType.TwiceDaily,
             DoseQuantity = 1,
-            ScheduledTime = new TimeOnly(8, 0)
+            ScheduledTime = new TimeOnly(8, 0),
+            IsActive = true,
+            EffectiveFrom = DateTime.UtcNow.Date
         };
 
         context.Users.Add(user);
@@ -190,7 +192,9 @@ public class DomainEntityTests : IAsyncLifetime
             Medication = medication,
             Frequency = FrequencyType.OnceDaily,
             DoseQuantity = 1,
-            ScheduledTime = new TimeOnly(9, 0)
+            ScheduledTime = new TimeOnly(9, 0),
+            IsActive = true,
+            EffectiveFrom = DateTime.UtcNow.Date
         };
 
         var log = new MedicationLog

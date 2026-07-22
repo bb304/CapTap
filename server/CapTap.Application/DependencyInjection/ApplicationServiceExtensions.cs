@@ -17,6 +17,9 @@ public static class ApplicationServiceExtensions
         services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IMedicationService, MedicationService>();
+        services.AddScoped<IScheduleService, ScheduleService>();
+        services.AddScoped<IAdherenceService, AdherenceService>();
+        services.AddSingleton<ITimeProvider, SystemTimeProvider>();
 
         if (configuration is not null)
         {

@@ -24,7 +24,19 @@ public sealed class MedicationScheduleConfiguration : BaseEntityConfiguration<Me
             .IsRequired()
             .HasColumnType("time");
 
+        builder.Property(schedule => schedule.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
+
+        builder.Property(schedule => schedule.EffectiveFrom)
+            .IsRequired();
+
+        builder.Property(schedule => schedule.EffectiveTo);
+
         builder.HasIndex(schedule => schedule.MedicationId)
             .HasDatabaseName("IX_MedicationSchedules_MedicationId");
+
+        builder.HasIndex(schedule => new { schedule.MedicationId, schedule.ScheduledTime })
+            .HasDatabaseName("IX_MedicationSchedules_MedicationId_ScheduledTime");
     }
 }

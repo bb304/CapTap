@@ -30,9 +30,17 @@ Infrastructure:
 | Phase 2 — Domain & database | Complete | Core entities, Fluent API configs, `InitialCreate` migration, relationship tests |
 | Phase 3 — Authentication | Complete | Register/login, JWT, refresh family rotation, SMTP email, authorized API scaffolds |
 | Phase 4 — Medication management | Complete | Personal med CRUD, OpenFDA search, ownership isolation, archive |
-| Phase 5 — Scheduling & adherence | Not started | Multi-time schedules, today dashboard, adherence status |
-| Later phases | Not started | Scheduling, NFC logging, offline, deployment |
+| Phase 5 — Scheduling & adherence | Complete | Multi-time schedules, today/missed dashboard, status engine |
+| Later phases | Not started | NFC logging, offline, deployment |
 
+### Completed in Phase 5
+
+- `MedicationSchedule` extended: `IsActive`, `EffectiveFrom`, `EffectiveTo`; frequency enum as strings
+- Multiple daily times as separate schedule rows; duplicate time rejection
+- `AdherenceService` computes Upcoming / Due / Taken / Missed (no auto missed logs)
+- Endpoints: medication schedules CRUD + `GET /api/v1/dashboard/today` + `/missed`
+- Audit: `SCHEDULE_CREATED` / `UPDATED` / `DELETED`
+- Docs: `docs/scheduling.md`; scheduling & adherence unit tests
 
 ### Completed in Phase 4
 
@@ -80,8 +88,8 @@ Infrastructure:
 
 ### Intentionally deferred
 
-- Scheduling & adherence dashboard (Phase 5)
-- NFC / manual dose logging
+- NFC / manual dose logging APIs (Phase 6) — adherence matches logs by `ScheduleId` when present
+- User timezones (status currently uses UTC)
 - Soft-delete / anonymization workflows
 
 ## Backend Architecture
