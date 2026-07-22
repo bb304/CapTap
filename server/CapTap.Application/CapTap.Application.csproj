@@ -2,6 +2,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CapTap.Domain\CapTap.Domain.csproj" />
+    <ProjectReference Include="..\CapTap.Shared\CapTap.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
   </ItemGroup>
 
   <PropertyGroup>
