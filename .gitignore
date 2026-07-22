@@ -108,10 +108,11 @@ coverage/
 *.log
 docker-compose.override.yml
 
-# Local tooling
+# Local tooling / editor agent config (keep private)
 .turbo/
 .cache/
 tmp/
 temp/
+.cursor/
 .claude/
 .colima/

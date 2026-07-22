@@ -26,9 +26,19 @@ Infrastructure:
 | Phase | Status | Description |
 |-------|--------|-------------|
 | Phase 0 — Environment & project setup | Complete | Repo layout, Expo app, ASP.NET solution, Docker Postgres, health/Swagger scaffolding |
-| Phase 1 — Backend foundation | Complete | Clean Architecture, EF Core, DI, repositories, middleware, config, tests |
-| Phase 2 — Authentication | Not started | Register/login, JWT, refresh tokens, email verification |
-| Later phases | Not started | Medications, NFC, dashboard, offline, deployment |
+| Phase 1 — Backend foundation | Complete | Clean Architecture, EF Core plumbing, DI, repositories, middleware, config, tests |
+| Phase 2 — Domain & database | Complete | Core entities, Fluent API configs, `InitialCreate` migration, relationship tests |
+| Phase 3 — Authentication | Not started | Register/login, JWT, refresh tokens, email verification |
+| Later phases | Not started | Medications APIs, NFC, dashboard, offline, deployment |
+
+### Completed in Phase 2
+
+- Domain entities: `User`, `Medication`, `MedicationSchedule`, `MedicationLog`, `NfcTag`, `RefreshToken`, `AuditLog`
+- Enums stored as strings: `FrequencyType`, `LoggingMethod`
+- EF Fluent API configurations, indexes, and delete behaviors
+- Migration: `InitialCreate` applied to local PostgreSQL
+- Infrastructure tests for context init, user insert, medication/schedule relationships, NFC uniqueness
+- Database design doc: `docs/database-design.md`
 
 ### Completed in Phase 1
 
@@ -43,12 +53,12 @@ Infrastructure:
 - Configuration: `DatabaseSettings`, `JwtSettings`, `ApplicationSettings` + env overrides
 - xUnit + FluentAssertions tests (Application + Infrastructure with Testcontainers)
 
-### Not in Phase 1 (intentionally deferred)
+### Intentionally deferred
 
-- Authentication / JWT issuance
-- Domain entities (User, Medication, etc.)
-- Medication, NFC, dashboard, or other business APIs
-- Rate limiting and FluentValidation (planned before/with auth)
+- Authentication / JWT issuance (Phase 3)
+- Medication, NFC, dashboard business APIs
+- Rate limiting and FluentValidation (planned with auth)
+- Email verification / password reset token tables (auth phase)
 
 ## Backend Architecture
 

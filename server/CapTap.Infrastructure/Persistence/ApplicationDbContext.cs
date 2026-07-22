@@ -1,4 +1,5 @@
 using CapTap.Domain.Common;
+using CapTap.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CapTap.Infrastructure.Persistence;
@@ -10,31 +11,25 @@ public class ApplicationDbContext : DbContext
     {
     }
 
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<Medication> Medications => Set<Medication>();
+
+    public DbSet<MedicationSchedule> MedicationSchedules => Set<MedicationSchedule>();
+
+    public DbSet<MedicationLog> MedicationLogs => Set<MedicationLog>();
+
+    public DbSet<NfcTag> NfcTags => Set<NfcTag>();
+
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            if (!typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
-            {
-                continue;
-            }
-
-            modelBuilder.Entity(entityType.ClrType)
-                .Property(nameof(BaseEntity.Id))
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity(entityType.ClrType)
-                .Property(nameof(BaseEntity.CreatedAt))
-                .IsRequired();
-
-            modelBuilder.Entity(entityType.ClrType)
-                .Property(nameof(BaseEntity.UpdatedAt))
-                .IsRequired();
-        }
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
