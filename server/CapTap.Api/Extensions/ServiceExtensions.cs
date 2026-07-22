@@ -36,7 +36,12 @@ public static class ServiceExtensions
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(
+                    new System.Text.Json.Serialization.JsonStringEnumConverter());
+            });
         services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy =>
@@ -83,6 +88,7 @@ public static class ServiceExtensions
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
             options.AddPolicy("auth", httpContext =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -92,6 +98,24 @@ public static class ServiceExtensions
                         Window = TimeSpan.FromMinutes(1),
                         QueueLimit = 0
                     }));
+
+            options.AddPolicy("medication-search", httpContext =>
+            {
+                var userId =
+                    httpContext.User.FindFirst("userId")?.Value
+                    ?? httpContext.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                    ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? "anonymous";
+
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: userId,
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 30,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueLimit = 0
+                    });
+            });
         });
 
         return services;

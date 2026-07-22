@@ -1,5 +1,6 @@
 using CapTap.Application.Interfaces;
 using CapTap.Infrastructure.Configuration;
+using CapTap.Infrastructure.ExternalServices;
 using CapTap.Infrastructure.Persistence;
 using CapTap.Infrastructure.Repositories;
 using CapTap.Infrastructure.Services;
@@ -70,9 +71,18 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+        services.AddScoped<IMedicationRepository, MedicationRepository>();
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuditService, AuditService>();
+        services.AddScoped<IFdaMedicationService, FdaMedicationService>();
+
+        services.AddHttpClient("OpenFda", client =>
+        {
+            client.BaseAddress = new Uri("https://api.fda.gov/");
+            client.Timeout = TimeSpan.FromSeconds(10);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("CapTap/1.0 (medication-adherence; contact=support@captap.local)");
+        });
 
         services.AddScoped<IEmailService>(sp =>
         {

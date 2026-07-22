@@ -21,10 +21,10 @@ if (app.Environment.IsProduction())
 }
 
 app.UseCapTapMiddleware();
-app.UseRateLimiter();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {

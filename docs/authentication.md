@@ -80,10 +80,9 @@ Other settings:
 
 ## Protected medication / NFC APIs
 
-Scaffold controllers inherit `AuthorizedApiControllerBase`:
+Scaffold controllers inherit `AuthorizedApiControllerBase`. Medication CRUD is implemented in Phase 4 (`docs/medication-management.md`). NFC remains a scaffold:
 
-- `GET /api/v1/medications` — requires Bearer JWT; returns empty list scaffold scoped to `CurrentUserId`
-- `GET /api/v1/nfc/tags` — same pattern
+- `GET /api/v1/nfc/tags` — requires Bearer JWT; returns empty list scaffold scoped to `CurrentUserId`
 
 **Rule for Phase 4+:** every medication/NFC query and mutation must filter by `CurrentUserId` from claims. Never trust a client-supplied user id.
 

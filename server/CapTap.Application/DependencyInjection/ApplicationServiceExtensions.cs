@@ -16,6 +16,7 @@ public static class ApplicationServiceExtensions
     {
         services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IMedicationService, MedicationService>();
 
         if (configuration is not null)
         {

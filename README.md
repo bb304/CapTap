@@ -29,7 +29,19 @@ Infrastructure:
 | Phase 1 — Backend foundation | Complete | Clean Architecture, EF Core plumbing, DI, repositories, middleware, config, tests |
 | Phase 2 — Domain & database | Complete | Core entities, Fluent API configs, `InitialCreate` migration, relationship tests |
 | Phase 3 — Authentication | Complete | Register/login, JWT, refresh family rotation, SMTP email, authorized API scaffolds |
-| Later phases | Not started | Full medications APIs, NFC flows, dashboard, offline, deployment |
+| Phase 4 — Medication management | Complete | Personal med CRUD, OpenFDA search, ownership isolation, archive |
+| Phase 5 — Scheduling & adherence | Not started | Multi-time schedules, today dashboard, adherence status |
+| Later phases | Not started | Scheduling, NFC logging, offline, deployment |
+
+
+### Completed in Phase 4
+
+- Medication endpoints under `/api/v1/medications` (list, get, create, update, archive, OpenFDA search)
+- Ownership enforced on every query (`UserId` + id); cross-user access returns identical 404
+- OpenFDA integration via `IFdaMedicationService` / `HttpClient` (graceful failure, 10s timeout)
+- Search rate limit: 30 requests/minute per authenticated user
+- Audit: `MEDICATION_CREATED`, `MEDICATION_UPDATED`, `MEDICATION_ARCHIVED`, `MEDICATION_SEARCHED`
+- Docs: `docs/medication-management.md`; application medication unit tests
 
 ### Completed in Phase 3
 
@@ -39,7 +51,7 @@ Infrastructure:
 - Account lockout (5 failures / 15 minutes), IP rate limiting on login/register (10/min)
 - `SmtpEmailService` (SMTP) + `Mock` for local; Production requires SMTP
 - `JWT_SECRET` only via env (not committed); Production rejects weak placeholders
-- `[Authorize]` scaffolds: `/api/v1/medications`, `/api/v1/nfc/tags` via `CurrentUserId`
+- `[Authorize]` + `CurrentUserId` for protected APIs
 - Audit events, security headers, Production HTTPS redirection, Swagger Bearer auth
 - Migrations: `AuthFoundation`, `RefreshTokenFamilies`; docs: `docs/authentication.md`
 - Application auth unit tests + Argon2 password hashing test
@@ -68,7 +80,8 @@ Infrastructure:
 
 ### Intentionally deferred
 
-- Full medication / NFC / dashboard business logic (authorized scaffolds only)
+- Scheduling & adherence dashboard (Phase 5)
+- NFC / manual dose logging
 - Soft-delete / anonymization workflows
 
 ## Backend Architecture
