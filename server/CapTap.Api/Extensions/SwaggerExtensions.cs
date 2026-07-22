@@ -16,7 +16,7 @@ public static class SwaggerExtensions
                 Description = "Secure medication adherence platform"
             });
 
-            // Prepared for Phase 2 JWT auth — not enforced yet.
+            // JWT Bearer auth for protected endpoints.
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Name = "Authorization",

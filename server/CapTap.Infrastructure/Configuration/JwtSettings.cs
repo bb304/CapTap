@@ -8,7 +8,7 @@ public sealed class JwtSettings
 
     public string Issuer { get; set; } = "CapTap";
 
-    public string Audience { get; set; } = "CapTap";
+    public string Audience { get; set; } = "CapTapMobile";
 
     public int AccessTokenExpirationMinutes { get; set; } = 15;
 

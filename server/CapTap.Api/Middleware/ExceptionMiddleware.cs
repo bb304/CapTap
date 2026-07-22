@@ -67,6 +67,15 @@ public sealed class ExceptionMiddleware
             ValidationException validationException =>
                 ((int)HttpStatusCode.BadRequest, validationException.Code, validationException.Message),
 
+            UnauthorizedException unauthorizedException =>
+                ((int)HttpStatusCode.Unauthorized, unauthorizedException.Code, unauthorizedException.Message),
+
+            UnauthorizedAccessException =>
+                ((int)HttpStatusCode.Unauthorized, ErrorCodes.Unauthorized, "Authentication required."),
+
+            InvalidRequestException invalidRequestException =>
+                ((int)HttpStatusCode.BadRequest, invalidRequestException.Code, invalidRequestException.Message),
+
             ApplicationException applicationException =>
                 ((int)HttpStatusCode.BadRequest, applicationException.Code, applicationException.Message),
 

@@ -1,4 +1,5 @@
 using CapTap.Domain.Entities;
+using CapTap.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -30,6 +31,20 @@ public sealed class UserConfiguration : BaseEntityConfiguration<User>
         builder.Property(user => user.IsActive)
             .IsRequired()
             .HasDefaultValue(true);
+
+        builder.Property(user => user.Status)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .IsRequired()
+            .HasDefaultValue(UserStatus.Active);
+
+        builder.Property(user => user.FailedLoginAttempts)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(user => user.LockedUntil);
+
+        builder.Property(user => user.EmailVerificationSentAt);
 
         builder.HasMany(user => user.Medications)
             .WithOne(medication => medication.User)

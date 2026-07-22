@@ -12,6 +12,9 @@ public sealed class RefreshTokenConfiguration : BaseEntityConfiguration<RefreshT
 
         builder.ToTable("RefreshTokens");
 
+        builder.Property(token => token.FamilyId)
+            .IsRequired();
+
         builder.Property(token => token.TokenHash)
             .IsRequired();
 
@@ -21,10 +24,16 @@ public sealed class RefreshTokenConfiguration : BaseEntityConfiguration<RefreshT
         builder.Property(token => token.ExpiresAt)
             .IsRequired();
 
+        builder.Property(token => token.RevokedReason)
+            .HasMaxLength(100);
+
         builder.HasIndex(token => token.UserId)
             .HasDatabaseName("IX_RefreshTokens_UserId");
 
         builder.HasIndex(token => token.TokenHash)
             .HasDatabaseName("IX_RefreshTokens_TokenHash");
+
+        builder.HasIndex(token => token.FamilyId)
+            .HasDatabaseName("IX_RefreshTokens_FamilyId");
     }
 }

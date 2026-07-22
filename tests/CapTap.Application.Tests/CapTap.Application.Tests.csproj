@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\server\CapTap.Application\CapTap.Application.csproj" />
     <ProjectReference Include="..\..\server\CapTap.Shared\CapTap.Shared.csproj" />
+    <ProjectReference Include="..\..\server\CapTap.Domain\CapTap.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -28,8 +28,21 @@ Infrastructure:
 | Phase 0 — Environment & project setup | Complete | Repo layout, Expo app, ASP.NET solution, Docker Postgres, health/Swagger scaffolding |
 | Phase 1 — Backend foundation | Complete | Clean Architecture, EF Core plumbing, DI, repositories, middleware, config, tests |
 | Phase 2 — Domain & database | Complete | Core entities, Fluent API configs, `InitialCreate` migration, relationship tests |
-| Phase 3 — Authentication | Not started | Register/login, JWT, refresh tokens, email verification |
-| Later phases | Not started | Medications APIs, NFC, dashboard, offline, deployment |
+| Phase 3 — Authentication | Complete | Register/login, JWT, refresh family rotation, SMTP email, authorized API scaffolds |
+| Later phases | Not started | Full medications APIs, NFC flows, dashboard, offline, deployment |
+
+### Completed in Phase 3
+
+- Auth endpoints under `/api/v1/auth/*` (register, login, refresh, logout, forgot/reset password)
+- Argon2id password hashing; JWT access tokens (15m) + hashed refresh tokens with rotation (30d)
+- Refresh **family reuse detection** (replay revokes the whole session family)
+- Account lockout (5 failures / 15 minutes), IP rate limiting on login/register (10/min)
+- `SmtpEmailService` (SMTP) + `Mock` for local; Production requires SMTP
+- `JWT_SECRET` only via env (not committed); Production rejects weak placeholders
+- `[Authorize]` scaffolds: `/api/v1/medications`, `/api/v1/nfc/tags` via `CurrentUserId`
+- Audit events, security headers, Production HTTPS redirection, Swagger Bearer auth
+- Migrations: `AuthFoundation`, `RefreshTokenFamilies`; docs: `docs/authentication.md`
+- Application auth unit tests + Argon2 password hashing test
 
 ### Completed in Phase 2
 
@@ -55,10 +68,8 @@ Infrastructure:
 
 ### Intentionally deferred
 
-- Authentication / JWT issuance (Phase 3)
-- Medication, NFC, dashboard business APIs
-- Rate limiting and FluentValidation (planned with auth)
-- Email verification / password reset token tables (auth phase)
+- Full medication / NFC / dashboard business logic (authorized scaffolds only)
+- Soft-delete / anonymization workflows
 
 ## Backend Architecture
 

@@ -10,13 +10,21 @@ if (File.Exists(envPath))
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
-    .AddCapTapServices(builder.Configuration)
+    .AddCapTapServices(builder.Configuration, builder.Environment)
     .AddSwaggerDocumentation();
 
 var app = builder.Build();
 
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseCapTapMiddleware();
+app.UseRateLimiter();
 app.UseCors();
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
