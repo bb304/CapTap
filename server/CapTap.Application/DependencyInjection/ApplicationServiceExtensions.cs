@@ -19,6 +19,10 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IMedicationService, MedicationService>();
         services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<IAdherenceService, AdherenceService>();
+        services.AddScoped<IAdherenceStreakService, AdherenceStreakService>();
+        services.AddScoped<IMedicationLogService, MedicationLogService>();
+        services.AddScoped<INfcService, NfcService>();
+        services.AddScoped<IUserProfileService, UserProfileService>();
         services.AddSingleton<ITimeProvider, SystemTimeProvider>();
 
         if (configuration is not null)

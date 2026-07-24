@@ -223,7 +223,8 @@ public sealed class MedicationServiceTests
             Guid? userId = null,
             Guid? entityId = null,
             string? ipAddress = null,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            string? metadata = null)
         {
             Actions.Add(action);
             return Task.CompletedTask;

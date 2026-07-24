@@ -1,29 +1,52 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "CapTap",
+    "slug": "captap",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "captap",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.captap.app",
+      "infoPlist": {
+        "NFCReaderUsageDescription": "CapTap uses NFC to recognize your medication bottle tags so you can confirm doses quickly."
+      },
+      "entitlements": {
+        "com.apple.developer.nfc.readersession.formats": ["NDEF", "TAG"]
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#E8F2FA",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "package": "com.captap.app",
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.NFC"]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
+      "expo-router",
       "expo-secure-store",
-      "expo-sqlite"
-    ]
+      "expo-sqlite",
+      [
+        "react-native-nfc-manager",
+        {
+          "nfcPermission": "CapTap uses NFC to recognize your medication bottle tags so you can confirm doses quickly.",
+          "selectIdentifiers": [],
+          "systemCodes": []
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }

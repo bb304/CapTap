@@ -10,6 +10,9 @@ public sealed class TodayDoseDto
 
     public TimeOnly ScheduledTime { get; set; }
 
+    /// <summary>UTC instant for this local scheduled occurrence (for POST /medication-logs).</summary>
+    public DateTime ScheduledDoseTime { get; set; }
+
     public int DoseQuantity { get; set; }
 
     public AdherenceStatus Status { get; set; }

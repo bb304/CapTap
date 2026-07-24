@@ -175,10 +175,20 @@ public sealed class AdherenceAndScheduleTests
 
         var morning = await fixture.ScheduleService.CreateScheduleAsync(
             userId, med.Id,
-            new CreateScheduleRequest { ScheduledTime = new TimeOnly(8, 0), DoseQuantity = 1 });
+            new CreateScheduleRequest
+            {
+                ScheduledTime = new TimeOnly(8, 0),
+                DoseQuantity = 1,
+                EffectiveFrom = new DateTime(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc)
+            });
         await fixture.ScheduleService.CreateScheduleAsync(
             userId, med.Id,
-            new CreateScheduleRequest { ScheduledTime = new TimeOnly(20, 0), DoseQuantity = 1 });
+            new CreateScheduleRequest
+            {
+                ScheduledTime = new TimeOnly(20, 0),
+                DoseQuantity = 1,
+                EffectiveFrom = new DateTime(2026, 7, 1, 0, 0, 0, DateTimeKind.Utc)
+            });
 
         fixture.Logs.Items.Add(new MedicationLog
         {
@@ -186,7 +196,8 @@ public sealed class AdherenceAndScheduleTests
             UserId = userId,
             MedicationId = med.Id,
             ScheduleId = morning.Id,
-            TakenAt = new DateTime(2026, 7, 22, 8, 5, 0, DateTimeKind.Utc),
+            ScheduledDoseTime = new DateTime(2026, 7, 22, 8, 0, 0, DateTimeKind.Utc),
+            LoggedAt = new DateTime(2026, 7, 22, 8, 5, 0, DateTimeKind.Utc),
             LoggingMethod = LoggingMethod.Manual
         });
 
@@ -204,6 +215,7 @@ public sealed class AdherenceAndScheduleTests
         public required AdherenceService Adherence { get; init; }
         public required InMemoryMedicationRepository Medications { get; init; }
         public required InMemoryLogRepository Logs { get; init; }
+        public required InMemoryUserRepository Users { get; init; }
 
         public static Fixture Create(DateTime? clock = null)
         {
@@ -220,19 +232,22 @@ public sealed class AdherenceAndScheduleTests
                 new CreateScheduleRequestValidator(),
                 new UpdateScheduleRequestValidator());
 
-            var adherence = new AdherenceService(schedules, logs, time);
+            var users = new InMemoryUserRepository();
+            var adherence = new AdherenceService(schedules, logs, users, time);
 
             return new Fixture
             {
                 ScheduleService = scheduleService,
                 Adherence = adherence,
                 Medications = medications,
-                Logs = logs
+                Logs = logs,
+                Users = users
             };
         }
 
         public MedicationEntity AddMedication(Guid userId, string name)
         {
+            Users.Ensure(userId);
             var medication = new MedicationEntity
             {
                 Id = Guid.NewGuid(),
@@ -245,6 +260,39 @@ public sealed class AdherenceAndScheduleTests
             Medications.Items.Add(medication);
             return medication;
         }
+    }
+
+    private sealed class InMemoryUserRepository : IUserRepository
+    {
+        public Dictionary<Guid, User> Items { get; } = new();
+
+        public void Ensure(Guid userId, string timeZoneId = "UTC")
+        {
+            if (!Items.ContainsKey(userId))
+            {
+                Items[userId] = new User
+                {
+                    Id = userId,
+                    Email = $"{userId:N}@test.local",
+                    PasswordHash = "x",
+                    TimeZoneId = timeZoneId
+                };
+            }
+        }
+
+        public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Items.Values.FirstOrDefault(u => u.Email == email));
+
+        public Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
+            Task.FromResult(Items.TryGetValue(id, out var user) ? user : null);
+
+        public Task AddAsync(User user, CancellationToken cancellationToken = default)
+        {
+            Items[user.Id] = user;
+            return Task.CompletedTask;
+        }
+
+        public void Update(User user) => Items[user.Id] = user;
     }
 
     private sealed class FixedTimeProvider : ITimeProvider
@@ -267,7 +315,8 @@ public sealed class AdherenceAndScheduleTests
             Guid? userId = null,
             Guid? entityId = null,
             string? ipAddress = null,
-            CancellationToken cancellationToken = default) =>
+            CancellationToken cancellationToken = default,
+            string? metadata = null) =>
             Task.CompletedTask;
     }
 
@@ -414,23 +463,86 @@ public sealed class AdherenceAndScheduleTests
 
         public Task<List<MedicationLog>> GetForUserOnDateAsync(
             Guid userId,
-            DateOnly date,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(Items
-                .Where(l => l.UserId == userId && DateOnly.FromDateTime(l.TakenAt) == date)
+            DateOnly localDate,
+            TimeZoneInfo timeZone,
+            CancellationToken cancellationToken = default)
+        {
+            var start = TimeZoneInfo.ConvertTimeToUtc(
+                DateTime.SpecifyKind(localDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified),
+                timeZone);
+            var end = TimeZoneInfo.ConvertTimeToUtc(
+                DateTime.SpecifyKind(localDate.AddDays(1).ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified),
+                timeZone);
+
+            return Task.FromResult(Items
+                .Where(l =>
+                    l.UserId == userId &&
+                    l.ScheduledDoseTime >= start &&
+                    l.ScheduledDoseTime < end)
                 .ToList());
+        }
 
         public Task<List<MedicationLog>> GetForUserBetweenDatesAsync(
             Guid userId,
-            DateOnly fromDate,
-            DateOnly toDateInclusive,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(Items
+            DateOnly fromLocalDate,
+            DateOnly toLocalDateInclusive,
+            TimeZoneInfo timeZone,
+            CancellationToken cancellationToken = default)
+        {
+            var start = TimeZoneInfo.ConvertTimeToUtc(
+                DateTime.SpecifyKind(fromLocalDate.ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified),
+                timeZone);
+            var end = TimeZoneInfo.ConvertTimeToUtc(
+                DateTime.SpecifyKind(toLocalDateInclusive.AddDays(1).ToDateTime(TimeOnly.MinValue), DateTimeKind.Unspecified),
+                timeZone);
+
+            return Task.FromResult(Items
                 .Where(l =>
-                {
-                    var d = DateOnly.FromDateTime(l.TakenAt);
-                    return l.UserId == userId && d >= fromDate && d <= toDateInclusive;
-                })
+                    l.UserId == userId &&
+                    l.ScheduledDoseTime >= start &&
+                    l.ScheduledDoseTime < end)
                 .ToList());
+        }
+
+        public Task<MedicationLog?> FindDuplicateAsync(
+            Guid userId,
+            Guid scheduleId,
+            DateTime scheduledDoseTime,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(Items.FirstOrDefault(l =>
+                l.UserId == userId &&
+                l.ScheduleId == scheduleId &&
+                l.ScheduledDoseTime == scheduledDoseTime));
+
+        public Task<(List<MedicationLog> Items, int TotalCount)> GetHistoryAsync(
+            Guid userId,
+            int page,
+            int pageSize,
+            Guid? medicationId = null,
+            CancellationToken cancellationToken = default)
+        {
+            var query = Items.Where(l => l.UserId == userId);
+            if (medicationId.HasValue)
+            {
+                query = query.Where(l => l.MedicationId == medicationId.Value);
+            }
+
+            var list = query
+                .OrderByDescending(l => l.LoggedAt)
+                .ToList();
+            var pageItems = list.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            return Task.FromResult((pageItems, list.Count));
+        }
+
+        public Task AddAsync(MedicationLog log, CancellationToken cancellationToken = default)
+        {
+            if (log.Id == Guid.Empty)
+            {
+                log.Id = Guid.NewGuid();
+            }
+
+            Items.Add(log);
+            return Task.CompletedTask;
+        }
     }
 }

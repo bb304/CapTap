@@ -16,7 +16,7 @@ Save to My Medications
 List / update / archive as needed
 ```
 
-Schedule configuration and NFC pairing are later phases. This phase stores the medication record the user confirms.
+Schedule configuration is Phase 5 (`docs/scheduling.md`). NFC pairing is Phase 9 (`docs/nfc-integration.md`). This phase stores the medication record the user confirms.
 
 ## Architecture
 

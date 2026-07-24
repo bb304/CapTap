@@ -48,6 +48,10 @@ namespace CapTap.Infrastructure.Migrations
                         .HasMaxLength(45)
                         .HasColumnType("character varying(45)");
 
+                    b.Property<string>("Metadata")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -174,6 +178,9 @@ namespace CapTap.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTime>("LoggedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("LoggingMethod")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -182,10 +189,14 @@ namespace CapTap.Infrastructure.Migrations
                     b.Property<Guid>("MedicationId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<Guid?>("ScheduleId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("TakenAt")
+                    b.Property<DateTime>("ScheduledDoseTime")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -196,16 +207,23 @@ namespace CapTap.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LoggedAt")
+                        .HasDatabaseName("IX_MedicationLogs_LoggedAt");
+
                     b.HasIndex("MedicationId")
                         .HasDatabaseName("IX_MedicationLogs_MedicationId");
 
                     b.HasIndex("ScheduleId");
 
-                    b.HasIndex("TakenAt")
-                        .HasDatabaseName("IX_MedicationLogs_TakenAt");
+                    b.HasIndex("ScheduledDoseTime")
+                        .HasDatabaseName("IX_MedicationLogs_ScheduledDoseTime");
 
                     b.HasIndex("UserId")
                         .HasDatabaseName("IX_MedicationLogs_UserId");
+
+                    b.HasIndex("UserId", "ScheduleId", "ScheduledDoseTime")
+                        .IsUnique()
+                        .HasDatabaseName("IX_MedicationLogs_User_Schedule_ScheduledDoseTime");
 
                     b.ToTable("MedicationLogs", (string)null);
                 });
@@ -270,12 +288,12 @@ namespace CapTap.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsAssigned")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
-                    b.Property<DateTime?>("LastUsedAt")
+                    b.Property<DateTime?>("LastScannedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("MedicationId")
@@ -289,15 +307,22 @@ namespace CapTap.Infrastructure.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MedicationId")
                         .IsUnique()
-                        .HasDatabaseName("IX_NfcTags_MedicationId");
+                        .HasDatabaseName("IX_NfcTags_MedicationId_Assigned")
+                        .HasFilter("\"IsAssigned\" = TRUE");
 
                     b.HasIndex("TagIdentifier")
                         .IsUnique()
                         .HasDatabaseName("IX_NfcTags_TagIdentifier");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_NfcTags_UserId");
 
                     b.ToTable("NfcTags", (string)null);
                 });
@@ -437,6 +462,13 @@ namespace CapTap.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasDefaultValue("Active");
 
+                    b.Property<string>("TimeZoneId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasDefaultValue("UTC");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -511,12 +543,20 @@ namespace CapTap.Infrastructure.Migrations
             modelBuilder.Entity("CapTap.Domain.Entities.NfcTag", b =>
                 {
                     b.HasOne("CapTap.Domain.Entities.Medication", "Medication")
-                        .WithOne("NfcTag")
-                        .HasForeignKey("CapTap.Domain.Entities.NfcTag", "MedicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("NfcTags")
+                        .HasForeignKey("MedicationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CapTap.Domain.Entities.User", "User")
+                        .WithMany("NfcTags")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Medication");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CapTap.Domain.Entities.PasswordResetToken", b =>
@@ -545,7 +585,7 @@ namespace CapTap.Infrastructure.Migrations
                 {
                     b.Navigation("Logs");
 
-                    b.Navigation("NfcTag");
+                    b.Navigation("NfcTags");
 
                     b.Navigation("Schedules");
                 });
@@ -557,6 +597,8 @@ namespace CapTap.Infrastructure.Migrations
                     b.Navigation("MedicationLogs");
 
                     b.Navigation("Medications");
+
+                    b.Navigation("NfcTags");
 
                     b.Navigation("PasswordResetTokens");
 

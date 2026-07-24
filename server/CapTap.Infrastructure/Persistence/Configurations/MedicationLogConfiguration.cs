@@ -12,7 +12,10 @@ public sealed class MedicationLogConfiguration : BaseEntityConfiguration<Medicat
 
         builder.ToTable("MedicationLogs");
 
-        builder.Property(log => log.TakenAt)
+        builder.Property(log => log.ScheduledDoseTime)
+            .IsRequired();
+
+        builder.Property(log => log.LoggedAt)
             .IsRequired();
 
         builder.Property(log => log.LoggingMethod)
@@ -20,14 +23,25 @@ public sealed class MedicationLogConfiguration : BaseEntityConfiguration<Medicat
             .HasMaxLength(20)
             .IsRequired();
 
+        builder.Property(log => log.Notes)
+            .HasMaxLength(500);
+
         builder.HasIndex(log => log.UserId)
             .HasDatabaseName("IX_MedicationLogs_UserId");
 
-        builder.HasIndex(log => log.TakenAt)
-            .HasDatabaseName("IX_MedicationLogs_TakenAt");
+        builder.HasIndex(log => log.LoggedAt)
+            .HasDatabaseName("IX_MedicationLogs_LoggedAt");
 
         builder.HasIndex(log => log.MedicationId)
             .HasDatabaseName("IX_MedicationLogs_MedicationId");
+
+        builder.HasIndex(log => log.ScheduledDoseTime)
+            .HasDatabaseName("IX_MedicationLogs_ScheduledDoseTime");
+
+        // One log per user/schedule/scheduled occurrence — prevents duplicate dose confirmations.
+        builder.HasIndex(log => new { log.UserId, log.ScheduleId, log.ScheduledDoseTime })
+            .IsUnique()
+            .HasDatabaseName("IX_MedicationLogs_User_Schedule_ScheduledDoseTime");
 
         builder.HasOne(log => log.Schedule)
             .WithMany()

@@ -147,18 +147,20 @@ public class DomainEntityTests : IAsyncLifetime
 
         context.NfcTags.Add(new NfcTag
         {
+            UserId = user.Id,
             MedicationId = firstMedication.Id,
             TagIdentifier = "04:A2:9F:77",
-            IsActive = true,
+            IsAssigned = true,
             AssignedAt = DateTime.UtcNow
         });
         await context.SaveChangesAsync();
 
         context.NfcTags.Add(new NfcTag
         {
+            UserId = user.Id,
             MedicationId = secondMedication.Id,
             TagIdentifier = "04:A2:9F:77",
-            IsActive = true,
+            IsAssigned = true,
             AssignedAt = DateTime.UtcNow
         });
 
@@ -202,7 +204,8 @@ public class DomainEntityTests : IAsyncLifetime
             User = user,
             Medication = medication,
             Schedule = schedule,
-            TakenAt = DateTime.UtcNow,
+            ScheduledDoseTime = DateTime.UtcNow.Date.AddHours(9),
+            LoggedAt = DateTime.UtcNow,
             LoggingMethod = LoggingMethod.Nfc
         };
 

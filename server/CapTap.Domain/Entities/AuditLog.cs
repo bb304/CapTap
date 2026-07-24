@@ -13,4 +13,7 @@ public class AuditLog : BaseEntity
     public Guid? EntityId { get; set; }
 
     public string? IpAddress { get; set; }
+
+    /// <summary>Optional JSON payload (e.g. NFC tag id, device id, medication id).</summary>
+    public string? Metadata { get; set; }
 }

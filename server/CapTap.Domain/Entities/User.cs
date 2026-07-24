@@ -23,11 +23,16 @@ public class User : BaseEntity
 
     public DateTime? EmailVerificationSentAt { get; set; }
 
+    /// <summary>IANA time zone id (e.g. America/New_York). Timestamps stay UTC; local day uses this.</summary>
+    public string TimeZoneId { get; set; } = "UTC";
+
     public ICollection<Medication> Medications { get; set; } = new List<Medication>();
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 
     public ICollection<MedicationLog> MedicationLogs { get; set; } = new List<MedicationLog>();
+
+    public ICollection<NfcTag> NfcTags { get; set; } = new List<NfcTag>();
 
     public ICollection<EmailVerificationToken> EmailVerificationTokens { get; set; } = new List<EmailVerificationToken>();
 

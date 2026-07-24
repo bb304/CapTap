@@ -221,7 +221,19 @@ public sealed class MedicationService : IMedicationService
             DosageUnit = medication.DosageUnit,
             Form = medication.Form,
             Instructions = medication.Instructions,
-            IsArchived = medication.IsArchived
+            IsArchived = medication.IsArchived,
+            Schedules = medication.Schedules
+                .Where(s => s.IsActive)
+                .OrderBy(s => s.ScheduledTime)
+                .Select(s => new MedicationScheduleSummaryDto
+                {
+                    Id = s.Id,
+                    Frequency = s.Frequency,
+                    ScheduledTime = s.ScheduledTime,
+                    DoseQuantity = s.DoseQuantity,
+                    IsActive = s.IsActive
+                })
+                .ToList()
         };
 
     private static string? NormalizeOptional(string? value) =>

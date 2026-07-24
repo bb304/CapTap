@@ -56,9 +56,6 @@ public sealed class MedicationConfiguration : BaseEntityConfiguration<Medication
             .HasForeignKey(log => log.MedicationId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(medication => medication.NfcTag)
-            .WithOne(tag => tag.Medication)
-            .HasForeignKey<NfcTag>(tag => tag.MedicationId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // NfcTag relationship configured in NfcTagConfiguration (soft-unassign; never hard-delete tags).
     }
 }

@@ -13,6 +13,12 @@ public interface IAdherenceService
         Guid userId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>Project expected doses and status for an arbitrary local calendar day.</summary>
+    Task<List<TodayDoseDto>> GetDosesForDateAsync(
+        Guid userId,
+        DateOnly date,
+        CancellationToken cancellationToken = default);
+
     AdherenceStatus CalculateStatus(
         TimeOnly scheduledTime,
         DateOnly doseDate,

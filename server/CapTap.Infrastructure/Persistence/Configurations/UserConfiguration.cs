@@ -46,6 +46,11 @@ public sealed class UserConfiguration : BaseEntityConfiguration<User>
 
         builder.Property(user => user.EmailVerificationSentAt);
 
+        builder.Property(user => user.TimeZoneId)
+            .IsRequired()
+            .HasMaxLength(100)
+            .HasDefaultValue("UTC");
+
         builder.HasMany(user => user.Medications)
             .WithOne(medication => medication.User)
             .HasForeignKey(medication => medication.UserId)

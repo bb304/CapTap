@@ -80,11 +80,13 @@ Other settings:
 
 ## Protected medication / NFC APIs
 
-Scaffold controllers inherit `AuthorizedApiControllerBase`. Medication CRUD is implemented in Phase 4 (`docs/medication-management.md`). NFC remains a scaffold:
+Controllers inherit `AuthorizedApiControllerBase`. Medication CRUD is Phase 4 (`docs/medication-management.md`). NFC assign/resolve/logging is Phase 9 (`docs/nfc-integration.md`):
 
-- `GET /api/v1/nfc/tags` — requires Bearer JWT; returns empty list scaffold scoped to `CurrentUserId`
+- `GET /api/v1/nfc/tags` — assigned tags for `CurrentUserId`
+- `POST /api/v1/nfc/assign` / `unassign`
+- `GET /api/v1/nfc/{tagIdentifier}` — resolve for confirm-to-log
 
-**Rule for Phase 4+:** every medication/NFC query and mutation must filter by `CurrentUserId` from claims. Never trust a client-supplied user id.
+**Rule:** every medication/NFC query and mutation must filter by `CurrentUserId` from claims. Never trust a client-supplied user id.
 
 ## Password reset
 
@@ -127,8 +129,9 @@ Production **requires** `EMAIL_PROVIDER=Smtp` with `EMAIL_HOST` and `EMAIL_FROM`
 | POST | `/api/v1/auth/logout` | Revokes token family |
 | POST | `/api/v1/auth/forgot-password` | Enumeration-safe |
 | POST | `/api/v1/auth/reset-password` | Token + new password |
-| GET | `/api/v1/medications` | Authorized scaffold |
-| GET | `/api/v1/nfc/tags` | Authorized scaffold |
+| GET | `/api/v1/medications` | Authorized (Phase 4+) |
+| GET | `/api/v1/nfc/tags` | Authorized (Phase 9) |
+| PUT | `/api/v1/users/me/timezone` | Authorized (Phase 9) |
 
 ### Auth response shape
 

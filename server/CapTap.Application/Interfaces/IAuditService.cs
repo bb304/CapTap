@@ -8,5 +8,6 @@ public interface IAuditService
         Guid? userId = null,
         Guid? entityId = null,
         string? ipAddress = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        string? metadata = null);
 }

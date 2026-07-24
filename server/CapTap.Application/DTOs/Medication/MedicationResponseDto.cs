@@ -19,4 +19,9 @@ public sealed class MedicationResponseDto
     public string? Instructions { get; set; }
 
     public bool IsArchived { get; set; }
+
+    /// <summary>
+    /// Active schedules included on list/detail to avoid client N+1 fetches.
+    /// </summary>
+    public List<MedicationScheduleSummaryDto> Schedules { get; set; } = [];
 }

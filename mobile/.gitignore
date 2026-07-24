@@ -34,6 +34,9 @@ yarn-error.*
 .env
 .env.*
 !.env.example
+# Public (non-secret) API base URLs are committed for reproducible builds.
+!.env.development
+!.env.production
 .env*.local
 
 # typescript

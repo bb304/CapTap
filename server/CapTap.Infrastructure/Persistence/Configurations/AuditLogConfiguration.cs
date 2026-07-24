@@ -23,6 +23,9 @@ public sealed class AuditLogConfiguration : BaseEntityConfiguration<AuditLog>
         builder.Property(log => log.IpAddress)
             .HasMaxLength(45);
 
+        builder.Property(log => log.Metadata)
+            .HasMaxLength(2000);
+
         builder.HasIndex(log => log.UserId)
             .HasDatabaseName("IX_AuditLogs_UserId");
 

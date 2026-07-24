@@ -1,0 +1,15 @@
+export const routes = {
+  welcome: "/(auth)/welcome",
+  login: "/(auth)/login",
+  register: "/(auth)/register",
+  forgotPassword: "/(auth)/forgot-password",
+  tabs: "/(tabs)",
+  medications: "/(tabs)/medications",
+  settings: "/(tabs)/settings",
+  history: "/history",
+  nfcScan: "/nfc/scan",
+  nfcConfirm: "/nfc/confirm",
+  addMedication: "/medications/add",
+  medicationDetails: (id: string) => `/medications/${id}` as const,
+  editMedication: (id: string) => `/medications/edit/${id}` as const,
+} as const;

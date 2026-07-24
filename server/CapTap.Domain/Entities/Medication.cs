@@ -30,5 +30,5 @@ public class Medication : BaseEntity
 
     public ICollection<MedicationLog> Logs { get; set; } = new List<MedicationLog>();
 
-    public NfcTag? NfcTag { get; set; }
+    public ICollection<NfcTag> NfcTags { get; set; } = new List<NfcTag>();
 }

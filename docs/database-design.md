@@ -1,6 +1,6 @@
 # CapTap Database Design
 
-Version: Phase 2  
+Version: Phase 9  
 Aligned with: CapTap DDD v1.0
 
 ## Overview
@@ -28,13 +28,13 @@ Not stored:
 
 | Entity | Table | Purpose |
 |--------|-------|---------|
-| `User` | `Users` | Account credentials and status |
+| `User` | `Users` | Account credentials, status, IANA `TimeZoneId` |
 | `Medication` | `Medications` | User-owned medication records |
 | `MedicationSchedule` | `MedicationSchedules` | Daily dose times |
-| `MedicationLog` | `MedicationLogs` | Taken-dose history |
-| `NfcTag` | `NfcTags` | Physical sticker → medication mapping |
+| `MedicationLog` | `MedicationLogs` | Taken-dose history (`LoggedAt`, `ScheduledDoseTime`, `LoggingMethod`) |
+| `NfcTag` | `NfcTags` | Physical sticker → medication mapping (`UserId`, soft `IsAssigned`) |
 | `RefreshToken` | `RefreshTokens` | Session refresh tokens (hashed) |
-| `AuditLog` | `AuditLogs` | Security / compliance events |
+| `AuditLog` | `AuditLogs` | Security / compliance events (+ optional `Metadata`) |
 
 All entities inherit `BaseEntity` (`Id`, `CreatedAt`, `UpdatedAt`).
 
@@ -45,15 +45,16 @@ User 1 ─── * Medication
 Medication 1 ─── * MedicationSchedule
 Medication 1 ─── * MedicationLog
 User 1 ─── * MedicationLog
-Medication 1 ─── 0..1 NfcTag
+User 1 ─── * NfcTag
+Medication 1 ─── * NfcTag (at most one with IsAssigned = true)
 User 1 ─── * RefreshToken
 ```
 
 Delete behaviors:
 - Medication → Schedules: **Cascade**
-- Medication → NfcTag: **Cascade**
+- Medication → NfcTags: **Restrict** (soft-unassign; never hard-delete tags)
 - Medication → Logs: **Restrict** (history preserved)
-- User → Medications / Logs: **Restrict**
+- User → Medications / Logs / NfcTags: **Restrict**
 - User → RefreshTokens: **Cascade**
 
 ## Enums (stored as strings)
@@ -68,10 +69,13 @@ Delete behaviors:
 - `IX_Medications_FdaIdentifier`
 - `IX_MedicationSchedules_MedicationId`
 - `IX_MedicationLogs_UserId`
-- `IX_MedicationLogs_TakenAt`
+- `IX_MedicationLogs_LoggedAt`
+- `IX_MedicationLogs_ScheduledDoseTime`
 - `IX_MedicationLogs_MedicationId`
+- `IX_MedicationLogs_User_Schedule_ScheduledDoseTime` (unique — one log per scheduled occurrence)
 - `IX_NfcTags_TagIdentifier` (unique)
-- `IX_NfcTags_MedicationId` (unique — one tag per medication)
+- `IX_NfcTags_MedicationId_Assigned` (unique filtered — one **assigned** tag per medication)
+- `IX_NfcTags_UserId`
 - `IX_RefreshTokens_UserId`
 - `IX_RefreshTokens_TokenHash`
 - `IX_AuditLogs_UserId`
@@ -98,10 +102,15 @@ dotnet ef database update \
   --startup-project CapTap.Api
 ```
 
-Current schema migration: **`InitialCreate`**
+Current schema migrations (apply in order via `dotnet ef database update`):
+
+- `InitialCreate` … through Phase 5 scheduling
+- `MedicationLoggingFields` (Phase 8)
+- `NfcAndUserTimeZone` (Phase 9)
 
 ## Design Notes
 
 - Soft archive via `Medication.IsArchived` rather than hard delete for active meds.
-- NFC uniqueness is enforced in the database so the same sticker cannot map to two medications.
-- Auth token / email-verification tables from later auth work are intentionally deferred to Phase 3.
+- NFC tag identifiers are unique; at most one **assigned** sticker per medication (`IsAssigned` soft flag; rows are never hard-deleted).
+- User `TimeZoneId` (IANA) drives local-day adherence; timestamps remain UTC.
+- See `docs/nfc-integration.md` and `docs/medication-logging.md` for logging + NFC behavior.

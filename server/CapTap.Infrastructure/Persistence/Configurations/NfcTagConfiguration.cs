@@ -16,19 +16,35 @@ public sealed class NfcTagConfiguration : BaseEntityConfiguration<NfcTag>
             .IsRequired()
             .HasMaxLength(255);
 
+        // One physical tag identity forever (soft-unassign keeps the row).
         builder.HasIndex(tag => tag.TagIdentifier)
             .IsUnique()
             .HasDatabaseName("IX_NfcTags_TagIdentifier");
 
+        // At most one currently-assigned sticker per medication.
         builder.HasIndex(tag => tag.MedicationId)
             .IsUnique()
-            .HasDatabaseName("IX_NfcTags_MedicationId");
+            .HasFilter("\"IsAssigned\" = TRUE")
+            .HasDatabaseName("IX_NfcTags_MedicationId_Assigned");
 
-        builder.Property(tag => tag.IsActive)
+        builder.HasIndex(tag => tag.UserId)
+            .HasDatabaseName("IX_NfcTags_UserId");
+
+        builder.Property(tag => tag.IsAssigned)
             .IsRequired()
             .HasDefaultValue(true);
 
         builder.Property(tag => tag.AssignedAt)
             .IsRequired();
+
+        builder.HasOne(tag => tag.User)
+            .WithMany(user => user.NfcTags)
+            .HasForeignKey(tag => tag.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(tag => tag.Medication)
+            .WithMany(medication => medication.NfcTags)
+            .HasForeignKey(tag => tag.MedicationId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

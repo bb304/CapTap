@@ -51,7 +51,10 @@ TodayDoseDto[]
 
 Sort for `/dashboard/today`: **Due → Upcoming → Taken → Missed**, then by time.
 
-Time basis: **UTC** via `ITimeProvider` (user timezones can be Phase 6+).
+## Time zone basis (Phase 9+)
+
+Schedule wall-clock times are evaluated in the user's IANA zone (`Users.TimeZoneId`).
+Persisted timestamps remain UTC. See `docs/nfc-integration.md`.
 
 ## API endpoints
 

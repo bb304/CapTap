@@ -76,11 +76,14 @@ public sealed class ExceptionMiddleware
             InvalidRequestException invalidRequestException =>
                 ((int)HttpStatusCode.BadRequest, invalidRequestException.Code, invalidRequestException.Message),
 
-            ApplicationException applicationException =>
-                ((int)HttpStatusCode.BadRequest, applicationException.Code, applicationException.Message),
+            ConflictException conflictException =>
+                ((int)HttpStatusCode.Conflict, conflictException.Code, conflictException.Message),
 
             NotFoundException notFoundException =>
                 ((int)HttpStatusCode.NotFound, notFoundException.Code, notFoundException.Message),
+
+            ApplicationException applicationException =>
+                ((int)HttpStatusCode.BadRequest, applicationException.Code, applicationException.Message),
 
             DomainException domainException =>
                 ((int)HttpStatusCode.BadRequest, domainException.Code, domainException.Message),

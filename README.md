@@ -31,7 +31,49 @@ Infrastructure:
 | Phase 3 — Authentication | Complete | Register/login, JWT, refresh family rotation, SMTP email, authorized API scaffolds |
 | Phase 4 — Medication management | Complete | Personal med CRUD, OpenFDA search, ownership isolation, archive |
 | Phase 5 — Scheduling & adherence | Complete | Multi-time schedules, today/missed dashboard, status engine |
-| Later phases | Not started | NFC logging, offline, deployment |
+| Phase 6 — Mobile foundation | Complete | Expo Router app, theme, UI kit, mock screens, no API yet |
+| Phase 7 — Mobile ↔ backend integration | Complete | Axios client, secure tokens, auto-refresh, live screens, no more mocks |
+| Phase 8 — Medication logging & adherence | Complete | Manual Mark as Taken, streaks, history, dashboard stats, proactive refresh |
+| Phase 9 — NFC convenience logging | Complete | Tag assign/resolve, confirm-to-log via shared endpoint, user time zones |
+| Later phases | Not started | Notifications, offline, deployment |
+
+### Completed in Phase 9
+
+- `NfcTag` domain: `UserId`, soft `IsAssigned`, never hard-delete; assign / unassign / resolve APIs
+- Shared logging: NFC confirmation calls `POST /api/v1/medication-logs` with `LoggingMethod = Nfc`
+- User IANA `TimeZoneId`; adherence / streaks / "today" use local calendar days (UTC storage)
+- Mobile scan + confirm screens; medication tag assign; timezone sync after login
+- Migration `NfcAndUserTimeZone`; docs: `docs/nfc-integration.md`
+
+### Completed in Phase 8
+- `POST /api/v1/medication-logs` — Manual (+ Nfc reserved), duplicate-safe, ownership-scoped
+- `GET /api/v1/medication-logs/history` — paginated newest-first history
+- `IAdherenceStreakService` + `GET /api/v1/dashboard/streak`
+- Dashboard `/today` returns server-computed completion, streaks, and counts
+- Medication list/detail include active schedules (avoids client N+1)
+- Mobile Mark as Taken with optimistic updates; History screen; proactive JWT refresh
+- Offline prep: TanStack `onlineManager` extension point (NetInfo in Phase 11)
+- Docs: `docs/medication-logging.md`
+
+### Completed in Phase 7
+
+- Typed Axios layer (`mobile/src/api`) with one client, auth header, and error normalization
+- Secure JWT storage (Expo SecureStore) with session restore on launch
+- Transparent access-token refresh + single retry on `401`; session expiry → Login
+- TanStack Query hooks for auth, dashboard, medications, and scheduling
+- Live Login / Register / Forgot-password / Dashboard / Medications / Details / Add / Edit
+- Skeletons, pull-to-refresh, and consistent error/empty states; mock layer removed
+- ESLint 9 flat config; integration tests (session, auth, 401 recovery, hooks)
+- Docs: `docs/mobile-backend-integration.md`
+
+### Completed in Phase 6
+
+- Expo Router app under `mobile/src/app` (welcome → auth → tabs)
+- Central theme + reusable UI (`Button`, `Card`, `Input`, `Screen`, …)
+- Dashboard / medications / settings / add / details screens with mock data
+- TanStack Query, RHF+Zod, SecureStore/SQLite placeholders
+- Accessibility-minded targets (44pt), docs: `docs/mobile-architecture.md`
+- Component tests for core UI
 
 ### Completed in Phase 5
 
@@ -88,9 +130,10 @@ Infrastructure:
 
 ### Intentionally deferred
 
-- NFC / manual dose logging APIs (Phase 6) — adherence matches logs by `ScheduleId` when present
-- User timezones (status currently uses UTC)
+- Push notifications / reminders
+- Offline mode (Expo SQLite + NetInfo → `onlineManager`)
 - Soft-delete / anonymization workflows
+- Medication log edit/delete APIs (audit event names reserved)
 
 ## Backend Architecture
 
@@ -136,7 +179,7 @@ export DOCKER_HOST="unix://${HOME}/.colima/docker.sock"
 # Start PostgreSQL
 docker compose up -d
 
-# Optional: apply migrations once domain entities exist
+# Apply migrations (required for Phases 8–9 logging + NFC)
 dotnet ef database update \
   --project server/CapTap.Infrastructure \
   --startup-project server/CapTap.Api
@@ -201,7 +244,20 @@ Configuration sections (see `appsettings*.json`):
 - `JwtSettings` (prepared for Phase 2; unused in Phase 1)
 - `ApplicationSettings`
 
-`.env` files are gitignored. Never commit secrets.
+`.env` files are gitignored (except committed `.env.example` / mobile public env templates). Never commit secrets.
+
+## Documentation
+
+| Doc | Topic |
+|-----|--------|
+| `docs/authentication.md` | Auth, JWT, lockout |
+| `docs/medication-management.md` | Medication CRUD + OpenFDA |
+| `docs/scheduling.md` | Schedules + adherence statuses |
+| `docs/medication-logging.md` | Manual logging, streaks, history |
+| `docs/nfc-integration.md` | NFC assign/scan/confirm + time zones |
+| `docs/mobile-architecture.md` | Expo app structure |
+| `docs/mobile-backend-integration.md` | Axios, session, hooks |
+| `docs/database-design.md` | Schema overview |
 
 ## Repository Structure
 

@@ -18,6 +18,7 @@ public sealed class MedicationRepository : IMedicationRepository
     {
         return _dbContext.Medications
             .AsNoTracking()
+            .Include(medication => medication.Schedules.Where(s => s.IsActive))
             .Where(medication => medication.UserId == userId && !medication.IsArchived)
             .OrderBy(medication => medication.Name)
             .ToListAsync(cancellationToken);
@@ -29,6 +30,7 @@ public sealed class MedicationRepository : IMedicationRepository
         CancellationToken cancellationToken = default)
     {
         return _dbContext.Medications
+            .Include(medication => medication.Schedules.Where(s => s.IsActive))
             .FirstOrDefaultAsync(
                 medication => medication.Id == medicationId && medication.UserId == userId,
                 cancellationToken);

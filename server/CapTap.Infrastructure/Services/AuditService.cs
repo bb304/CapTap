@@ -19,7 +19,8 @@ public sealed class AuditService : IAuditService
         Guid? userId = null,
         Guid? entityId = null,
         string? ipAddress = null,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string? metadata = null)
     {
         await _dbContext.AuditLogs.AddAsync(new AuditLog
         {
@@ -27,7 +28,8 @@ public sealed class AuditService : IAuditService
             Action = action,
             EntityType = entityType,
             EntityId = entityId,
-            IpAddress = ipAddress
+            IpAddress = ipAddress,
+            Metadata = metadata
         }, cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
