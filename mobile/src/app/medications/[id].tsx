@@ -2,14 +2,7 @@ import React from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Nfc } from "lucide-react-native";
-import {
-  Button,
-  Card,
-  LoadingSpinner,
-  Screen,
-  SectionHeader,
-  SkeletonCard,
-} from "@/components/ui";
+import { Button, Card, LoadingSpinner, Screen, SectionHeader, SkeletonCard } from "@/components/ui";
 import { ErrorState } from "@/components/common/ErrorState";
 import { useMedication, useArchiveMedication } from "@/hooks/useMedications";
 import { useSchedules } from "@/hooks/useSchedules";
@@ -48,10 +41,7 @@ export default function MedicationDetailsScreen() {
   if (medicationQuery.isError || !medicationQuery.data) {
     return (
       <Screen scroll={false}>
-        <ErrorState
-          error={medicationQuery.error}
-          onRetry={() => medicationQuery.refetch()}
-        />
+        <ErrorState error={medicationQuery.error} onRetry={() => medicationQuery.refetch()} />
         <Button label="Back" variant="ghost" onPress={() => router.back()} />
       </Screen>
     );
@@ -186,26 +176,14 @@ export default function MedicationDetailsScreen() {
                 loading={unassignTag.isPending}
               />
             ) : (
-              <Button
-                label="Assign tag"
-                onPress={onAssign}
-                loading={assignTag.isPending}
-              />
+              <Button label="Assign tag" onPress={onAssign} loading={assignTag.isPending} />
             )}
           </View>
         </View>
       </Card>
 
-      <Button
-        label="Edit"
-        onPress={() => router.push(routes.editMedication(medicationId))}
-      />
-      <Button
-        label="Archive"
-        variant="danger"
-        onPress={onArchive}
-        loading={archive.isPending}
-      />
+      <Button label="Edit" onPress={() => router.push(routes.editMedication(medicationId))} />
+      <Button label="Archive" variant="danger" onPress={onArchive} loading={archive.isPending} />
       <Button label="Back" variant="ghost" onPress={() => router.back()} />
     </Screen>
   );

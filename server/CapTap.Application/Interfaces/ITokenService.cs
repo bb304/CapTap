@@ -1,5 +1,5 @@
-using CapTap.Domain.Entities;
 using System.Security.Claims;
+using CapTap.Domain.Entities;
 
 namespace CapTap.Application.Interfaces;
 

@@ -5,12 +5,7 @@
  */
 import type { DashboardSummary, TodayDose } from "@/types/dashboard";
 import type { Medication, MedicationSchedule } from "@/types/medication";
-import type {
-  DashboardTodayResponse,
-  MedicationDto,
-  ScheduleDto,
-  TodayDoseDto,
-} from "./types";
+import type { DashboardTodayResponse, MedicationDto, ScheduleDto, TodayDoseDto } from "./types";
 
 export function mapMedication(dto: MedicationDto): Medication {
   const schedules: MedicationSchedule[] = (dto.schedules ?? []).map((s) => ({
@@ -93,8 +88,7 @@ export function buildDashboardSummary(
         todayDtos.length === 0
           ? 0
           : Math.round(
-              (100 * todayDtos.filter((d) => d.status === "Taken").length) /
-                todayDtos.length,
+              (100 * todayDtos.filter((d) => d.status === "Taken").length) / todayDtos.length,
             ),
       currentStreakDays: streaks?.currentStreakDays ?? 0,
       longestStreakDays: streaks?.longestStreakDays ?? 0,

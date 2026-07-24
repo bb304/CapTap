@@ -8,4 +8,5 @@ export const queryKeys = {
   logHistory: ["medication-logs", "history"] as const,
   streak: ["dashboard", "streak"] as const,
   nfcTags: ["nfc", "tags"] as const,
+  notificationPreferences: ["notifications", "preferences"] as const,
 };

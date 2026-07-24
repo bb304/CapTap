@@ -1,9 +1,9 @@
+using System.Net;
+using System.Text.Json;
 using CapTap.Application.Exceptions;
 using CapTap.Domain.Exceptions;
 using CapTap.Shared.Constants;
 using CapTap.Shared.Responses;
-using System.Net;
-using System.Text.Json;
 using ApplicationException = CapTap.Application.Exceptions.ApplicationException;
 
 namespace CapTap.Api.Middleware;
@@ -42,13 +42,18 @@ public sealed class ExceptionMiddleware
     {
         var (statusCode, code, message) = MapException(exception);
 
+        // Privacy: do not log exception messages for client errors (may include medication names).
+        // Server errors keep the exception for operators; clients still receive a safe ApiResponse.
         if (statusCode >= (int)HttpStatusCode.InternalServerError)
         {
-            _logger.LogError(exception, "Unhandled server error");
+            _logger.LogError(exception, "Unhandled server error {ErrorCode}", code);
         }
         else
         {
-            _logger.LogWarning(exception, "Handled application error {ErrorCode}", code);
+            _logger.LogWarning(
+                "Handled application error {ErrorCode} => {StatusCode}",
+                code,
+                statusCode);
         }
 
         context.Response.ContentType = "application/json";

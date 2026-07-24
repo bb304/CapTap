@@ -10,9 +10,7 @@ export function NoResults({ query }: NoResultsProps) {
     <EmptyState
       title="No results found"
       description={
-        query
-          ? `Nothing matched “${query}”. Try a different spelling.`
-          : "Try a different search."
+        query ? `Nothing matched “${query}”. Try a different spelling.` : "Try a different search."
       }
     />
   );

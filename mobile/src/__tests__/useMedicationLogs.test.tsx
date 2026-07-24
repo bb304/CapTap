@@ -15,9 +15,7 @@ import { useLogMedication, useMedicationLogHistory } from "@/hooks/useMedication
 import { queryKeys } from "@/constants/queryKeys";
 import type { DashboardSummary } from "@/types/dashboard";
 
-const createMock = medicationLogApi.create as jest.MockedFunction<
-  typeof medicationLogApi.create
->;
+const createMock = medicationLogApi.create as jest.MockedFunction<typeof medicationLogApi.create>;
 const historyMock = medicationLogApi.history as jest.MockedFunction<
   typeof medicationLogApi.history
 >;

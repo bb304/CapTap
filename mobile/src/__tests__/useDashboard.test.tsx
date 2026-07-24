@@ -14,12 +14,8 @@ import { dashboardApi } from "@/api/dashboard";
 import { useDashboard } from "@/hooks/useDashboard";
 import type { DashboardTodayResponse, TodayDoseDto } from "@/api/types";
 
-const todayMock = dashboardApi.today as jest.MockedFunction<
-  typeof dashboardApi.today
->;
-const missedMock = dashboardApi.missed as jest.MockedFunction<
-  typeof dashboardApi.missed
->;
+const todayMock = dashboardApi.today as jest.MockedFunction<typeof dashboardApi.today>;
+const missedMock = dashboardApi.missed as jest.MockedFunction<typeof dashboardApi.missed>;
 
 function dose(overrides: Partial<TodayDoseDto>): TodayDoseDto {
   return {

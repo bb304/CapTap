@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using CapTap.Application.Common;
 using CapTap.Application.DTOs.Auth;
 using CapTap.Application.Exceptions;
@@ -10,9 +13,6 @@ using CapTap.Domain.Enums;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace CapTap.Application.Tests.Auth;
 

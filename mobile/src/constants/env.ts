@@ -9,9 +9,10 @@
 const DEFAULT_API_URL = "http://localhost:5001";
 
 /** Base URL of the CapTap API (no trailing slash). */
-export const API_BASE_URL = (
-  process.env.EXPO_PUBLIC_API_URL ?? DEFAULT_API_URL
-).replace(/\/+$/, "");
+export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_URL ?? DEFAULT_API_URL).replace(
+  /\/+$/,
+  "",
+);
 
 /** True in development builds. Used to gate verbose request logging. */
 export const IS_DEV = __DEV__;

@@ -17,9 +17,7 @@ export const dashboardApi = {
   },
 
   async missed(): Promise<TodayDoseDto[]> {
-    const response = await apiClient.get<ApiResponse<TodayDoseDto[]>>(
-      endpoints.dashboard.missed,
-    );
+    const response = await apiClient.get<ApiResponse<TodayDoseDto[]>>(endpoints.dashboard.missed);
     return unwrap(response);
   },
 

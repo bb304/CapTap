@@ -17,7 +17,10 @@ export function Chip({ label, selected = false, onPress }: ChipProps) {
       accessibilityLabel={label}
       style={[styles.chip, selected ? styles.selected : null]}
     >
-      <Text style={[styles.label, selected ? styles.labelSelected : null]} maxFontSizeMultiplier={1.4}>
+      <Text
+        style={[styles.label, selected ? styles.labelSelected : null]}
+        maxFontSizeMultiplier={1.4}
+      >
         {label}
       </Text>
     </Pressable>

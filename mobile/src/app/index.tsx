@@ -14,7 +14,5 @@ export default function Index() {
     );
   }
 
-  return (
-    <Redirect href={status === "authenticated" ? routes.tabs : routes.welcome} />
-  );
+  return <Redirect href={status === "authenticated" ? routes.tabs : routes.welcome} />;
 }

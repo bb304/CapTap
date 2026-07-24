@@ -47,11 +47,7 @@ export default function RegisterScreen() {
 
         <FormError error={register.isError ? register.error : undefined} />
 
-        <Button
-          label="Create account"
-          onPress={onSubmit}
-          loading={register.isPending}
-        />
+        <Button label="Create account" onPress={onSubmit} loading={register.isPending} />
         <Button label="Back" variant="ghost" onPress={() => router.back()} />
       </View>
     </Screen>

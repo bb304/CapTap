@@ -12,8 +12,7 @@ type DoseCardProps = {
 };
 
 export function DoseCard({ dose, onMarkTaken, marking = false }: DoseCardProps) {
-  const canMark =
-    Boolean(onMarkTaken) && (dose.status === "Due" || dose.status === "Upcoming");
+  const canMark = Boolean(onMarkTaken) && (dose.status === "Due" || dose.status === "Upcoming");
 
   return (
     <Card

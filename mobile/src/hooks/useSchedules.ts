@@ -1,21 +1,16 @@
 /** Schedule queries and mutations for a medication. */
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { scheduleApi } from "@/api/schedule";
 import { mapSchedule } from "@/api/mappers";
-import type {
-  CreateScheduleRequest,
-  UpdateScheduleRequest,
-} from "@/api/types";
+import type { CreateScheduleRequest, UpdateScheduleRequest } from "@/api/types";
 import { queryKeys } from "@/constants/queryKeys";
+import { rescheduleRemindersFromCache } from "@/hooks/useReminders";
 
 export function useSchedules(medicationId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.schedules(medicationId ?? "unknown"),
     enabled: Boolean(medicationId),
+    networkMode: "offlineFirst",
     queryFn: async () => {
       const dtos = await scheduleApi.list(medicationId as string);
       return dtos.map(mapSchedule);
@@ -25,19 +20,20 @@ export function useSchedules(medicationId: string | undefined) {
 
 function useScheduleInvalidation(medicationId: string) {
   const queryClient = useQueryClient();
-  return () => {
+  return async () => {
     queryClient.invalidateQueries({
       queryKey: queryKeys.schedules(medicationId),
     });
     queryClient.invalidateQueries({ queryKey: queryKeys.dashboard });
+    queryClient.invalidateQueries({ queryKey: queryKeys.medications });
+    await rescheduleRemindersFromCache(queryClient);
   };
 }
 
 export function useCreateSchedule(medicationId: string) {
   const invalidate = useScheduleInvalidation(medicationId);
   return useMutation({
-    mutationFn: (request: CreateScheduleRequest) =>
-      scheduleApi.create(medicationId, request),
+    mutationFn: (request: CreateScheduleRequest) => scheduleApi.create(medicationId, request),
     onSuccess: invalidate,
   });
 }

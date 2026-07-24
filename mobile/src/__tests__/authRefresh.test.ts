@@ -15,9 +15,7 @@ import { ApiClientError } from "@/api/errors";
 import { session } from "@/api/session";
 
 const refreshMock = session.refresh as jest.MockedFunction<typeof session.refresh>;
-const getAccessMock = session.getAccessToken as jest.MockedFunction<
-  typeof session.getAccessToken
->;
+const getAccessMock = session.getAccessToken as jest.MockedFunction<typeof session.getAccessToken>;
 
 let mock: MockAdapter;
 

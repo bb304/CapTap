@@ -16,9 +16,7 @@ import { ApiClientError } from "@/api/errors";
 import type { MedicationDto } from "@/api/types";
 
 const listMock = medicationApi.list as jest.MockedFunction<typeof medicationApi.list>;
-const createMock = medicationApi.create as jest.MockedFunction<
-  typeof medicationApi.create
->;
+const createMock = medicationApi.create as jest.MockedFunction<typeof medicationApi.create>;
 
 const dto: MedicationDto = {
   id: "m1",

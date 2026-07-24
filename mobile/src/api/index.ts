@@ -7,9 +7,4 @@ export { medicationLogApi } from "./medicationLog";
 export { session } from "./session";
 export { endpoints } from "./endpoints";
 export * from "./types";
-export {
-  ApiClientError,
-  toUserMessage,
-  isRetryableError,
-  kindFromStatus,
-} from "./errors";
+export { ApiClientError, toUserMessage, isRetryableError, kindFromStatus } from "./errors";

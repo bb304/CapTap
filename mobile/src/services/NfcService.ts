@@ -13,8 +13,7 @@ export type NfcAvailability = {
 };
 
 export type NfcScanResult =
-  | { ok: true; tagIdentifier: string }
-  | { ok: false; cancelled: boolean; message: string };
+  { ok: true; tagIdentifier: string } | { ok: false; cancelled: boolean; message: string };
 
 type NfcManagerModule = {
   default: {
@@ -42,8 +41,7 @@ function loadNative(): boolean {
     NfcTech = mod.NfcTech;
     return true;
   } catch {
-    loadError =
-      "NFC requires a CapTap development build. It is not available in Expo Go.";
+    loadError = "NFC requires a CapTap development build. It is not available in Expo Go.";
     return false;
   }
 }
@@ -92,16 +90,13 @@ export const NfcService = {
       return {
         supported: true,
         enabled,
-        reason: enabled
-          ? undefined
-          : "NFC is turned off. Enable it in system settings.",
+        reason: enabled ? undefined : "NFC is turned off. Enable it in system settings.",
       };
     } catch (error) {
       return {
         supported: false,
         enabled: false,
-        reason:
-          error instanceof Error ? error.message : "Could not initialize NFC.",
+        reason: error instanceof Error ? error.message : "Could not initialize NFC.",
       };
     }
   },
@@ -139,8 +134,7 @@ export const NfcService = {
     } catch (error) {
       await manager.cancelTechnologyRequest().catch(() => undefined);
       const message = error instanceof Error ? error.message : "NFC scan failed.";
-      const cancelled =
-        /cancel/i.test(message) || Boolean(signal?.cancelled);
+      const cancelled = /cancel/i.test(message) || Boolean(signal?.cancelled);
       return { ok: false, cancelled, message: cancelled ? "Scan cancelled." : message };
     }
   },

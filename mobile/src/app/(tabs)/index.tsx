@@ -3,6 +3,7 @@ import { Alert, RefreshControl, StyleSheet, View } from "react-native";
 import { useRouter } from "expo-router";
 import { DoseCard } from "@/components/dashboard/DoseCard";
 import { StatCard } from "@/components/dashboard/StatCard";
+import { OfflineSyncBanner } from "@/components/common/OfflineSyncBanner";
 import { Button, EmptyState, Screen, SectionHeader, SkeletonCard } from "@/components/ui";
 import { ErrorState } from "@/components/common/ErrorState";
 import { useDashboard } from "@/hooks/useDashboard";
@@ -25,8 +26,7 @@ export default function DashboardScreen() {
       {
         medicationId: dose.medicationId,
         scheduleId: dose.scheduleId,
-        scheduledDoseTime:
-          dose.scheduledDoseTime ?? toScheduledDoseIso(dose.scheduledTime),
+        scheduledDoseTime: dose.scheduledDoseTime ?? toScheduledDoseIso(dose.scheduledTime),
         loggingMethod: "Manual",
       },
       {
@@ -69,6 +69,8 @@ export default function DashboardScreen() {
       }
     >
       <SectionHeader title="Today" subtitle="Did I take my medication today?" />
+
+      <OfflineSyncBanner />
 
       <Button
         label="Scan bottle tag"

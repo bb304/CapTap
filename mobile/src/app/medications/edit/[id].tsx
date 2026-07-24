@@ -7,10 +7,7 @@ import { Button, Chip, Screen, SectionHeader, SkeletonCard } from "@/components/
 import { FormTextField } from "@/components/forms/FormTextField";
 import { FormError } from "@/components/forms/FormError";
 import { ErrorState } from "@/components/common/ErrorState";
-import {
-  editMedicationSchema,
-  type EditMedicationFormValues,
-} from "@/components/forms/schemas";
+import { editMedicationSchema, type EditMedicationFormValues } from "@/components/forms/schemas";
 import { useMedication, useUpdateMedication } from "@/hooks/useMedications";
 import { spacing, typography } from "@/theme";
 
@@ -24,16 +21,15 @@ export default function EditMedicationScreen() {
   const medicationQuery = useMedication(medicationId);
   const update = useUpdateMedication(medicationId);
 
-  const { control, handleSubmit, setValue, watch, reset } =
-    useForm<EditMedicationFormValues>({
-      resolver: zodResolver(editMedicationSchema),
-      defaultValues: {
-        name: "",
-        dosageAmount: 0,
-        dosageUnit: "mg",
-        instructions: "",
-      },
-    });
+  const { control, handleSubmit, setValue, watch, reset } = useForm<EditMedicationFormValues>({
+    resolver: zodResolver(editMedicationSchema),
+    defaultValues: {
+      name: "",
+      dosageAmount: 0,
+      dosageUnit: "mg",
+      instructions: "",
+    },
+  });
 
   // Pre-fill once the medication loads.
   useEffect(() => {
@@ -73,10 +69,7 @@ export default function EditMedicationScreen() {
   if (medicationQuery.isError || !medicationQuery.data) {
     return (
       <Screen scroll={false}>
-        <ErrorState
-          error={medicationQuery.error}
-          onRetry={() => medicationQuery.refetch()}
-        />
+        <ErrorState error={medicationQuery.error} onRetry={() => medicationQuery.refetch()} />
         <Button label="Back" variant="ghost" onPress={() => router.back()} />
       </Screen>
     );
@@ -108,11 +101,7 @@ export default function EditMedicationScreen() {
         ))}
       </View>
 
-      <FormTextField
-        control={control}
-        name="instructions"
-        label="Instructions (optional)"
-      />
+      <FormTextField control={control} name="instructions" label="Instructions (optional)" />
 
       <FormError error={update.isError ? update.error : undefined} />
 

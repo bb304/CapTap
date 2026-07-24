@@ -13,10 +13,7 @@ import type {
 
 export const authApi = {
   async login(request: LoginRequest): Promise<AuthTokens> {
-    const response = await apiClient.post<ApiResponse<AuthTokens>>(
-      endpoints.auth.login,
-      request,
-    );
+    const response = await apiClient.post<ApiResponse<AuthTokens>>(endpoints.auth.login, request);
     return unwrap(response);
   },
 

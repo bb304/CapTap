@@ -42,12 +42,50 @@ public static class ServiceExtensions
                 options.JsonSerializerOptions.Converters.Add(
                     new System.Text.Json.Serialization.JsonStringEnumConverter());
             });
+        services.AddCapTapCors(configuration, environment);
+
+        return services;
+    }
+
+    public static IServiceCollection AddCapTapCors(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IHostEnvironment environment)
+    {
+        var configuredOrigins =
+            Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS")
+            ?? configuration["Cors:AllowedOrigins"]
+            ?? string.Empty;
+
+        var origins = configuredOrigins
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
         services.AddCors(options =>
         {
             options.AddDefaultPolicy(policy =>
-                policy.AllowAnyHeader()
-                      .AllowAnyMethod()
-                      .AllowAnyOrigin());
+            {
+                if (environment.IsProduction())
+                {
+                    if (origins.Length == 0)
+                    {
+                        // Native mobile clients do not need browser CORS; keep production closed.
+                        policy.SetIsOriginAllowed(_ => false);
+                    }
+                    else
+                    {
+                        policy.WithOrigins(origins)
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    }
+                }
+                else
+                {
+                    // Expo web / local tools during development.
+                    policy.AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowAnyOrigin();
+                }
+            });
         });
 
         return services;

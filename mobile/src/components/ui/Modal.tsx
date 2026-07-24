@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Modal as RNModal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal as RNModal, Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, spacing, typography } from "@/theme";
 import { Button } from "./Button";
 
@@ -18,18 +12,15 @@ type ModalProps = {
   onPrimary?: () => void;
 };
 
-export function Modal({
-  visible,
-  title,
-  children,
-  onClose,
-  primaryLabel,
-  onPrimary,
-}: ModalProps) {
+export function Modal({ visible, title, children, onClose, primaryLabel, onPrimary }: ModalProps) {
   return (
     <RNModal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel="Dismiss dialog" />
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={onClose}
+          accessibilityLabel="Dismiss dialog"
+        />
         <View style={styles.sheet} accessibilityRole="summary" accessibilityViewIsModal>
           <Text style={styles.title} maxFontSizeMultiplier={1.5}>
             {title}
@@ -37,9 +28,7 @@ export function Modal({
           <View style={styles.body}>{children}</View>
           <View style={styles.actions}>
             <Button label="Close" variant="ghost" onPress={onClose} />
-            {primaryLabel && onPrimary ? (
-              <Button label={primaryLabel} onPress={onPrimary} />
-            ) : null}
+            {primaryLabel && onPrimary ? <Button label={primaryLabel} onPress={onPrimary} /> : null}
           </View>
         </View>
       </View>

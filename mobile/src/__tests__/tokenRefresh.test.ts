@@ -8,14 +8,9 @@ jest.mock("@/api/session", () => ({
 }));
 
 import { session } from "@/api/session";
-import {
-  scheduleProactiveRefresh,
-  cancelProactiveRefresh,
-} from "@/api/tokenRefresh";
+import { scheduleProactiveRefresh, cancelProactiveRefresh } from "@/api/tokenRefresh";
 
-const getAccessMock = session.getAccessToken as jest.MockedFunction<
-  typeof session.getAccessToken
->;
+const getAccessMock = session.getAccessToken as jest.MockedFunction<typeof session.getAccessToken>;
 const refreshMock = session.refresh as jest.MockedFunction<typeof session.refresh>;
 
 /** Build an unsigned JWT with a near-future exp. */

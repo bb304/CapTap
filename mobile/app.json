@@ -11,10 +11,16 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.captap.app",
       "infoPlist": {
-        "NFCReaderUsageDescription": "CapTap uses NFC to recognize your medication bottle tags so you can confirm doses quickly."
+        "NFCReaderUsageDescription": "CapTap uses NFC to recognize your medication bottle tags so you can confirm doses quickly.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "entitlements": {
-        "com.apple.developer.nfc.readersession.formats": ["NDEF", "TAG"]
+        "com.apple.developer.nfc.readersession.formats": [
+          "NDEF",
+          "TAG",
+          "NDEF",
+          "TAG"
+        ]
       }
     },
     "android": {
@@ -26,7 +32,9 @@
       },
       "package": "com.captap.app",
       "predictiveBackGestureEnabled": false,
-      "permissions": ["android.permission.NFC"]
+      "permissions": [
+        "android.permission.NFC"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -37,6 +45,15 @@
       "expo-secure-store",
       "expo-sqlite",
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#2F6FED",
+          "sounds": [],
+          "defaultChannel": "medication-reminders"
+        }
+      ],
+      [
         "react-native-nfc-manager",
         {
           "nfcPermission": "CapTap uses NFC to recognize your medication bottle tags so you can confirm doses quickly.",
@@ -45,8 +62,14 @@
         }
       ]
     ],
+    "extra": {
+      "eas": {
+        "projectId": "e1974e7f-81f4-40c5-a076-8849e957246b"
+      }
+    },
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "owner": "b304s-team"
   }
 }

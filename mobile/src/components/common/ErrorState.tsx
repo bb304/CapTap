@@ -14,9 +14,7 @@ type ErrorStateProps = {
 export function ErrorState({ error, message, onRetry }: ErrorStateProps) {
   const body =
     message ??
-    (error !== undefined
-      ? toUserMessage(error)
-      : "Something went wrong. Please try again.");
+    (error !== undefined ? toUserMessage(error) : "Something went wrong. Please try again.");
   return (
     <View style={styles.wrap} accessibilityRole="alert">
       <Text style={styles.title} maxFontSizeMultiplier={1.5}>

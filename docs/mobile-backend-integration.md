@@ -212,6 +212,6 @@ context tests use a `QueryClient` wrapper with an in-memory SecureStore mock.
 
 ## Future API integration
 
-1. Offline cache (Expo SQLite) + `onlineManager` wired to NetInfo (Phase 11).
-2. Push notifications / reminders.
-3. Broader settings surfaces (theme, privacy copy) beyond timezone sync.
+1. Quiet-hours enforcement using stored preferences.
+2. Remote push / APNs if local reminders are insufficient.
+3. Broader settings surfaces (theme, privacy copy).

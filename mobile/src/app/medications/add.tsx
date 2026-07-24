@@ -6,20 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MedicationSearchList } from "@/components/medication/MedicationSearchList";
 import { NoResults } from "@/components/common/NoResults";
-import {
-  Button,
-  Chip,
-  LoadingSpinner,
-  Screen,
-  SearchBar,
-  SectionHeader,
-} from "@/components/ui";
+import { Button, Chip, LoadingSpinner, Screen, SearchBar, SectionHeader } from "@/components/ui";
 import { FormTextField } from "@/components/forms/FormTextField";
 import { FormError } from "@/components/forms/FormError";
-import {
-  addMedicationSchema,
-  type AddMedicationFormValues,
-} from "@/components/forms/schemas";
+import { addMedicationSchema, type AddMedicationFormValues } from "@/components/forms/schemas";
 import { medicationApi } from "@/api/medication";
 import { scheduleApi } from "@/api/schedule";
 import { useMedicationSearch } from "@/hooks/useMedications";
@@ -133,11 +123,7 @@ export default function AddMedicationScreen() {
         label="Schedule time (HH:MM)"
         placeholder="08:00"
       />
-      <FormTextField
-        control={control}
-        name="instructions"
-        label="Instructions (optional)"
-      />
+      <FormTextField control={control} name="instructions" label="Instructions (optional)" />
 
       <FormError error={createFlow.isError ? createFlow.error : undefined} />
 

@@ -6,10 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Screen, SectionHeader } from "@/components/ui";
 import { FormTextField } from "@/components/forms/FormTextField";
 import { FormError } from "@/components/forms/FormError";
-import {
-  forgotPasswordSchema,
-  type ForgotPasswordFormValues,
-} from "@/components/forms/schemas";
+import { forgotPasswordSchema, type ForgotPasswordFormValues } from "@/components/forms/schemas";
 import { useForgotPassword } from "@/hooks/useAuthMutations";
 import { spacing, typography } from "@/theme";
 
@@ -34,8 +31,7 @@ export default function ForgotPasswordScreen() {
       <View style={styles.form}>
         {forgotPassword.isSuccess ? (
           <Text style={styles.notice} maxFontSizeMultiplier={1.5}>
-            If an account exists for that email, a reset link is on its way. Check
-            your inbox.
+            If an account exists for that email, a reset link is on its way. Check your inbox.
           </Text>
         ) : (
           <>
@@ -47,14 +43,8 @@ export default function ForgotPasswordScreen() {
               keyboardType="email-address"
               placeholder="you@example.com"
             />
-            <FormError
-              error={forgotPassword.isError ? forgotPassword.error : undefined}
-            />
-            <Button
-              label="Send reset link"
-              onPress={onSubmit}
-              loading={forgotPassword.isPending}
-            />
+            <FormError error={forgotPassword.isError ? forgotPassword.error : undefined} />
+            <Button label="Send reset link" onPress={onSubmit} loading={forgotPassword.isPending} />
           </>
         )}
         <Button label="Back to login" variant="ghost" onPress={() => router.back()} />

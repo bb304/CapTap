@@ -11,9 +11,7 @@ import type {
 
 export const medicationApi = {
   async list(): Promise<MedicationDto[]> {
-    const response = await apiClient.get<ApiResponse<MedicationDto[]>>(
-      endpoints.medications.list,
-    );
+    const response = await apiClient.get<ApiResponse<MedicationDto[]>>(endpoints.medications.list);
     return unwrap(response);
   },
 
@@ -32,10 +30,7 @@ export const medicationApi = {
     return unwrap(response);
   },
 
-  async update(
-    id: string,
-    request: UpdateMedicationRequest,
-  ): Promise<MedicationDto> {
+  async update(id: string, request: UpdateMedicationRequest): Promise<MedicationDto> {
     const response = await apiClient.patch<ApiResponse<MedicationDto>>(
       endpoints.medications.update(id),
       request,

@@ -8,10 +8,25 @@ import { routes } from "@/constants/routes";
 import { colors, spacing, touchTarget, typography } from "@/theme";
 
 const rows = [
-  { id: "history", title: "Dose history", hint: "Your recent medication logs", route: routes.history },
-  { id: "scan", title: "Scan bottle tag", hint: "NFC tap to confirm a dose", route: routes.nfcScan },
+  {
+    id: "history",
+    title: "Dose history",
+    hint: "Your recent medication logs",
+    route: routes.history,
+  },
+  {
+    id: "scan",
+    title: "Scan bottle tag",
+    hint: "NFC tap to confirm a dose",
+    route: routes.nfcScan,
+  },
+  {
+    id: "notifications",
+    title: "Notifications",
+    hint: "Reminders & quiet hours",
+    route: routes.notificationSettings,
+  },
   { id: "theme", title: "Theme", hint: "Light (default)" },
-  { id: "notifications", title: "Notifications", hint: "Reminders & quiet hours" },
   { id: "privacy", title: "Privacy", hint: "How CapTap protects your data" },
   { id: "security", title: "Security", hint: "Sessions & lockout" },
   { id: "about", title: "About CapTap", hint: "Tap. Confirm. Peace of mind." },

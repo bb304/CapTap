@@ -9,19 +9,15 @@ import { useAuth } from "@/context/AuthContext";
 export function useLogin() {
   const { signIn } = useAuth();
   return useMutation({
-    mutationFn: (vars: { email: string; password: string }) =>
-      signIn(vars.email, vars.password),
+    mutationFn: (vars: { email: string; password: string }) => signIn(vars.email, vars.password),
   });
 }
 
 export function useRegister() {
   const { signUp } = useAuth();
   return useMutation({
-    mutationFn: (vars: {
-      email: string;
-      password: string;
-      confirmPassword: string;
-    }) => signUp(vars.email, vars.password, vars.confirmPassword),
+    mutationFn: (vars: { email: string; password: string; confirmPassword: string }) =>
+      signUp(vars.email, vars.password, vars.confirmPassword),
   });
 }
 

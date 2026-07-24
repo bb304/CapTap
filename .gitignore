@@ -98,8 +98,9 @@ android/local.properties
 *.ipa
 .kotlin/
 
-# Coverage / tests
-coverage/
+artifacts/
+TestResults/
+
 *.lcov
 .nyc_output/
 [Cc]overage*/

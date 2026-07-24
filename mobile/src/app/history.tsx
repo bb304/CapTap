@@ -1,14 +1,7 @@
 import React from "react";
 import { RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import {
-  Button,
-  Card,
-  EmptyState,
-  Screen,
-  SectionHeader,
-  SkeletonCard,
-} from "@/components/ui";
+import { Button, Card, EmptyState, Screen, SectionHeader, SkeletonCard } from "@/components/ui";
 import { ErrorState } from "@/components/common/ErrorState";
 import { useMedicationLogHistory } from "@/hooks/useMedicationLogs";
 import { formatTime } from "@/utils/format";
@@ -16,8 +9,10 @@ import { colors, spacing, typography } from "@/theme";
 
 export default function HistoryScreen() {
   const router = useRouter();
-  const { data, isLoading, isError, error, refetch, isRefetching } =
-    useMedicationLogHistory({ page: 1, pageSize: 50 });
+  const { data, isLoading, isError, error, refetch, isRefetching } = useMedicationLogHistory({
+    page: 1,
+    pageSize: 50,
+  });
 
   if (isLoading) {
     return (

@@ -14,10 +14,7 @@ export type TokenClaims = {
 
 function base64UrlDecode(input: string): string {
   const padded = input.replace(/-/g, "+").replace(/_/g, "/");
-  const withPadding = padded.padEnd(
-    padded.length + ((4 - (padded.length % 4)) % 4),
-    "=",
-  );
+  const withPadding = padded.padEnd(padded.length + ((4 - (padded.length % 4)) % 4), "=");
 
   if (typeof atob === "function") {
     return atob(withPadding);
@@ -41,9 +38,8 @@ export function decodeTokenClaims(token: string | null | undefined): TokenClaims
         (claims.sub as string | undefined),
       email:
         (claims.email as string | undefined) ??
-        (claims[
-          "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-        ] as string | undefined),
+        (claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"] as
+          string | undefined),
       exp: typeof claims.exp === "number" ? (claims.exp as number) : undefined,
     };
   } catch {

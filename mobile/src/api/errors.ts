@@ -25,12 +25,7 @@ export class ApiClientError extends Error {
   /** Backend error code (e.g. VALIDATION_ERROR), when provided. */
   readonly code?: string;
 
-  constructor(params: {
-    kind: ApiErrorKind;
-    message: string;
-    status?: number;
-    code?: string;
-  }) {
+  constructor(params: { kind: ApiErrorKind; message: string; status?: number; code?: string }) {
     super(params.message);
     this.name = "ApiClientError";
     this.kind = params.kind;
@@ -69,7 +64,7 @@ export function toUserMessage(error: unknown): string {
   if (error instanceof ApiClientError) {
     switch (error.kind) {
       case "network":
-        return "No internet connection. Check your connection and try again.";
+        return "No internet connection. CapTap saved what it can offline and will sync when you're back.";
       case "timeout":
         return "That took too long. Please try again.";
       case "unauthorized":
@@ -100,11 +95,7 @@ export function toUserMessage(error: unknown): string {
 /** True when the failure is transient and safe to auto-retry. */
 export function isRetryableError(error: unknown): boolean {
   if (error instanceof ApiClientError) {
-    return (
-      error.kind === "network" ||
-      error.kind === "timeout" ||
-      error.kind === "server"
-    );
+    return error.kind === "network" || error.kind === "timeout" || error.kind === "server";
   }
   return false;
 }

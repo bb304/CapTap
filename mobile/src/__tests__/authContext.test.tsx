@@ -72,10 +72,9 @@ describe("AuthContext", () => {
       expiresIn: 900,
     });
 
-    const { result } = renderHook(
-      () => ({ auth: useAuth(), login: useLogin() }),
-      { wrapper: createWrapper() },
-    );
+    const { result } = renderHook(() => ({ auth: useAuth(), login: useLogin() }), {
+      wrapper: createWrapper(),
+    });
     await waitFor(() => expect(result.current.auth.status).toBe("unauthenticated"));
 
     await act(async () => {
@@ -95,10 +94,9 @@ describe("AuthContext", () => {
       }),
     );
 
-    const { result } = renderHook(
-      () => ({ auth: useAuth(), login: useLogin() }),
-      { wrapper: createWrapper() },
-    );
+    const { result } = renderHook(() => ({ auth: useAuth(), login: useLogin() }), {
+      wrapper: createWrapper(),
+    });
     await waitFor(() => expect(result.current.auth.status).toBe("unauthenticated"));
 
     await act(async () => {

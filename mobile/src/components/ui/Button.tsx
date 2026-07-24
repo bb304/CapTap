@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  StyleSheet,
-  Text,
-  ViewStyle,
-} from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from "react-native";
 import { colors, radius, spacing, touchTarget, typography } from "@/theme";
 
 type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
@@ -48,7 +42,9 @@ export function Button({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "secondary" || variant === "ghost" ? colors.primary : colors.white} />
+        <ActivityIndicator
+          color={variant === "secondary" || variant === "ghost" ? colors.primary : colors.white}
+        />
       ) : (
         <Text
           style={[

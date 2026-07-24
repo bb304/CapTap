@@ -26,7 +26,10 @@ export default function NfcScanScreen() {
       if (!active) return;
 
       if (!availability.supported || !availability.enabled) {
-        setError(availability.reason ?? "NFC is not available on this device.");
+        setError(
+          availability.reason ??
+            "NFC is not available. Use a CapTap development build on an NFC-capable phone (not Expo Go / simulator).",
+        );
         setStatus("Unsupported");
         return;
       }
@@ -69,7 +72,12 @@ export default function NfcScanScreen() {
         });
       } catch (err) {
         if (!active) return;
-        setError(toUserMessage(err));
+        const message = toUserMessage(err);
+        setError(
+          /not found/i.test(message)
+            ? "This tag isn't linked to your medications. Assign it from a medication's details screen, or try another sticker."
+            : message,
+        );
         setStatus("Could not resolve tag");
       }
     })();

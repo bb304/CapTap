@@ -106,10 +106,9 @@ export const session = {
 
     inFlightRefresh = (async () => {
       try {
-        const { data } = await refreshClient.post<ApiResponse<AuthTokens>>(
-          REFRESH_ENDPOINT,
-          { refreshToken: current },
-        );
+        const { data } = await refreshClient.post<ApiResponse<AuthTokens>>(REFRESH_ENDPOINT, {
+          refreshToken: current,
+        });
         if (!data.success || !data.data) {
           await session.expire();
           return null;

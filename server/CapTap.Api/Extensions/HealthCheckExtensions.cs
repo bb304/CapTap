@@ -8,12 +8,35 @@ public static class HealthCheckExtensions
 {
     public static IEndpointRouteBuilder MapCapTapHealthChecks(this IEndpointRouteBuilder endpoints)
     {
+        // Liveness: process is up (ALB / k8s / Docker HEALTHCHECK).
+        endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = _ => false,
+            ResponseWriter = WriteSimpleStatusAsync
+        });
+
+        // Readiness: dependencies (PostgreSQL via EF).
+        endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
+        {
+            Predicate = check => check.Name.Equals("database", StringComparison.OrdinalIgnoreCase),
+            ResponseWriter = WriteHealthResponseAsync
+        });
+
+        // Backward-compatible aggregate (same payload as ready).
         endpoints.MapHealthChecks("/health", new HealthCheckOptions
         {
             ResponseWriter = WriteHealthResponseAsync
         });
 
         return endpoints;
+    }
+
+    private static Task WriteSimpleStatusAsync(HttpContext context, HealthReport report)
+    {
+        context.Response.ContentType = "application/json";
+        var status = report.Status == HealthStatus.Healthy ? "healthy" : "unhealthy";
+        return context.Response.WriteAsync(
+            JsonSerializer.Serialize(new { status, check = "live" }));
     }
 
     private static async Task WriteHealthResponseAsync(HttpContext context, HealthReport report)

@@ -9,6 +9,7 @@ export const routes = {
   history: "/history",
   nfcScan: "/nfc/scan",
   nfcConfirm: "/nfc/confirm",
+  notificationSettings: "/settings/notifications",
   addMedication: "/medications/add",
   medicationDetails: (id: string) => `/medications/${id}` as const,
   editMedication: (id: string) => `/medications/edit/${id}` as const,

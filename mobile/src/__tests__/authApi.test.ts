@@ -34,9 +34,7 @@ describe("authApi.login", () => {
       error: { code: "UNAUTHORIZED", message: "Invalid email or password." },
     });
 
-    await expect(
-      authApi.login({ email: "a@b.com", password: "wrong" }),
-    ).rejects.toMatchObject({
+    await expect(authApi.login({ email: "a@b.com", password: "wrong" })).rejects.toMatchObject({
       name: "ApiClientError",
       kind: "unauthorized",
       message: "Invalid email or password.",
@@ -46,9 +44,9 @@ describe("authApi.login", () => {
   it("maps a network failure to a network error", async () => {
     mock.onPost("/api/v1/auth/login").networkError();
 
-    await expect(
-      authApi.login({ email: "a@b.com", password: "pw" }),
-    ).rejects.toBeInstanceOf(ApiClientError);
+    await expect(authApi.login({ email: "a@b.com", password: "pw" })).rejects.toBeInstanceOf(
+      ApiClientError,
+    );
   });
 
   it("does not attempt refresh on a 401 from an auth route", async () => {
@@ -57,9 +55,9 @@ describe("authApi.login", () => {
       error: { code: "UNAUTHORIZED", message: "Invalid email or password." },
     });
 
-    await expect(
-      authApi.login({ email: "a@b.com", password: "pw" }),
-    ).rejects.toBeInstanceOf(ApiClientError);
+    await expect(authApi.login({ email: "a@b.com", password: "pw" })).rejects.toBeInstanceOf(
+      ApiClientError,
+    );
     // Only the single login attempt — no refresh/retry loop.
     expect(mock.history.post.filter((r) => r.url?.includes("/auth/login"))).toHaveLength(1);
   });

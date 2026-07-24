@@ -11,8 +11,7 @@ import { colors } from "@/theme";
 
 export default function MedicationsScreen() {
   const router = useRouter();
-  const { data, isLoading, isError, error, refetch, isRefetching } =
-    useMedications();
+  const { data, isLoading, isError, error, refetch, isRefetching } = useMedications();
 
   if (isLoading) {
     return (
