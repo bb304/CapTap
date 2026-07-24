@@ -40,11 +40,7 @@ export default function HistoryScreen() {
   return (
     <Screen
       refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={colors.primary}
-        />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <SectionHeader title="History" subtitle="Newest first" />

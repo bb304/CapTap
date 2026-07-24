@@ -63,11 +63,7 @@ export default function DashboardScreen() {
   return (
     <Screen
       refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={colors.primary}
-        />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
       }
     >
       <SectionHeader title="Today" subtitle="Did I take my medication today?" />
