@@ -17,6 +17,12 @@ const OFFSET_OPTIONS = [
   { label: "2 hours after", minutes: 120 },
 ] as const;
 
+const QUIET_WINDOW_OPTIONS = [
+  { label: "10 PM – 7 AM (default)", start: "22:00", end: "07:00" },
+  { label: "9 PM – 8 AM", start: "21:00", end: "08:00" },
+  { label: "11 PM – 6 AM", start: "23:00", end: "06:00" },
+] as const;
+
 export default function NotificationSettingsScreen() {
   const router = useRouter();
   const prefsQuery = useNotificationPreferences();
@@ -134,7 +140,10 @@ export default function NotificationSettingsScreen() {
         })}
       </Card>
 
-      <SectionHeader title="Quiet hours" subtitle="Coming soon" />
+      <SectionHeader
+        title="Quiet hours"
+        subtitle="Reminders that would fire overnight are delayed until morning."
+      />
       <Card style={styles.card}>
         <View style={styles.row}>
           <View style={styles.copy}>
@@ -142,16 +151,53 @@ export default function NotificationSettingsScreen() {
               Quiet hours
             </Text>
             <Text style={styles.hint} maxFontSizeMultiplier={1.4}>
-              Placeholder — preference is saved for a later phase
+              {prefs.quietHoursEnabled
+                ? `${prefs.quietHoursStart} – ${prefs.quietHoursEnd}`
+                : "Off — reminders may fire overnight"}
             </Text>
           </View>
           <Switch
             value={prefs.quietHoursEnabled}
             onValueChange={(quietHoursEnabled) => apply({ ...prefs, quietHoursEnabled })}
-            accessibilityLabel="Quiet hours placeholder"
+            accessibilityLabel="Enable quiet hours"
           />
         </View>
       </Card>
+
+      {prefs.quietHoursEnabled ? (
+        <Card style={styles.list}>
+          {QUIET_WINDOW_OPTIONS.map((option, index) => {
+            const selected =
+              prefs.quietHoursStart === option.start && prefs.quietHoursEnd === option.end;
+            return (
+              <Pressable
+                key={option.label}
+                onPress={() =>
+                  apply({
+                    ...prefs,
+                    quietHoursStart: option.start,
+                    quietHoursEnd: option.end,
+                  })
+                }
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                accessibilityLabel={option.label}
+                style={[
+                  styles.option,
+                  index < QUIET_WINDOW_OPTIONS.length - 1 ? styles.divider : null,
+                ]}
+              >
+                <Text style={styles.title} maxFontSizeMultiplier={1.4}>
+                  {option.label}
+                </Text>
+                <Text style={styles.hint} maxFontSizeMultiplier={1.4}>
+                  {selected ? "Selected" : "Tap to select"}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </Card>
+      ) : null}
 
       <Button label="Back" variant="ghost" onPress={() => router.back()} />
     </Screen>

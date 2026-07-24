@@ -45,7 +45,6 @@ public sealed class NfcTagRepository : INfcTagRepository
         CancellationToken cancellationToken = default)
     {
         return _dbContext.NfcTags
-            .AsNoTracking()
             .Include(tag => tag.Medication)
             .Where(tag => tag.UserId == userId && tag.IsAssigned)
             .OrderByDescending(tag => tag.AssignedAt)

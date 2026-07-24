@@ -46,6 +46,8 @@ public sealed class UserConfiguration : BaseEntityConfiguration<User>
 
         builder.Property(user => user.EmailVerificationSentAt);
 
+        builder.Property(user => user.DeletedAt);
+
         builder.Property(user => user.TimeZoneId)
             .IsRequired()
             .HasMaxLength(100)

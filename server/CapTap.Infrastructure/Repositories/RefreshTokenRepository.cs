@@ -42,4 +42,18 @@ public sealed class RefreshTokenRepository : IRefreshTokenRepository
             token.RevokedReason = reason;
         }
     }
+
+    public async Task RevokeAllForUserAsync(Guid userId, string reason, CancellationToken cancellationToken = default)
+    {
+        var utcNow = DateTime.UtcNow;
+        var activeTokens = await _dbContext.RefreshTokens
+            .Where(token => token.UserId == userId && token.RevokedAt == null)
+            .ToListAsync(cancellationToken);
+
+        foreach (var token in activeTokens)
+        {
+            token.RevokedAt = utcNow;
+            token.RevokedReason = reason;
+        }
+    }
 }

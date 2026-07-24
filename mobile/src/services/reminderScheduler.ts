@@ -1,6 +1,8 @@
 /**
  * Pure reminder planning — no native modules.
  * Schedules fire `reminderOffsetMinutes` after each scheduled dose wall-clock time.
+ * When quiet hours are enabled, fire times that fall inside the window are deferred
+ * to quietHoursEnd (same morning or next day for overnight windows).
  */
 import { toApiTime } from "@/utils/format";
 import type { Medication } from "@/types/medication";
@@ -21,6 +23,76 @@ export function parseScheduledTime(scheduledTime: string): {
 } {
   const [h, m, s] = toApiTime(scheduledTime).split(":").map(Number);
   return { hours: h ?? 0, minutes: m ?? 0, seconds: s ?? 0 };
+}
+
+/** Parse "HH:mm" or "HH:mm:ss" into minutes from local midnight. */
+export function parseHmToMinutes(value: string): number {
+  const [h, m] = value.split(":").map(Number);
+  return (h ?? 0) * 60 + (m ?? 0);
+}
+
+/**
+ * Overnight windows (start > end, e.g. 22:00–07:00) treat the quiet span as
+ * wrapping midnight. Same-day windows (start < end) are a single daytime block.
+ */
+export function isWithinQuietHours(
+  fireAt: Date,
+  quietHoursStart: string,
+  quietHoursEnd: string,
+): boolean {
+  const minutes = fireAt.getHours() * 60 + fireAt.getMinutes();
+  const start = parseHmToMinutes(quietHoursStart);
+  const end = parseHmToMinutes(quietHoursEnd);
+
+  if (start === end) {
+    return false;
+  }
+
+  if (start < end) {
+    return minutes >= start && minutes < end;
+  }
+
+  // Overnight: e.g. 22:00–07:00 → quiet if >= 22:00 OR < 07:00
+  return minutes >= start || minutes < end;
+}
+
+/**
+ * If `fireAt` is inside quiet hours, move it to quietHoursEnd on the appropriate day.
+ * Otherwise return the original instant.
+ */
+export function deferPastQuietHours(
+  fireAt: Date,
+  quietHoursStart: string,
+  quietHoursEnd: string,
+): Date {
+  if (!isWithinQuietHours(fireAt, quietHoursStart, quietHoursEnd)) {
+    return fireAt;
+  }
+
+  const end = parseHmToMinutes(quietHoursEnd);
+  const endHours = Math.floor(end / 60);
+  const endMinutes = end % 60;
+  const start = parseHmToMinutes(quietHoursStart);
+  const minutes = fireAt.getHours() * 60 + fireAt.getMinutes();
+
+  const deferred = new Date(fireAt);
+
+  if (start < end) {
+    // Same-day quiet block → end later the same calendar day.
+    deferred.setHours(endHours, endMinutes, 0, 0);
+    return deferred;
+  }
+
+  // Overnight: early-morning quiet (before end) → same day end;
+  // evening quiet (at/after start) → next day end.
+  if (minutes < end) {
+    deferred.setHours(endHours, endMinutes, 0, 0);
+  } else {
+    deferred.setDate(deferred.getDate() + 1);
+    deferred.setHours(endHours, endMinutes, 0, 0);
+  }
+
+  return deferred;
 }
 
 function startOfLocalDay(day: Date): Date {
@@ -77,7 +149,11 @@ export function buildReminderPlan(options: {
           minutes,
           seconds,
         );
-        const fireAt = new Date(doseLocal.getTime() + prefs.reminderOffsetMinutes * 60_000);
+        let fireAt = new Date(doseLocal.getTime() + prefs.reminderOffsetMinutes * 60_000);
+
+        if (prefs.quietHoursEnabled) {
+          fireAt = deferPastQuietHours(fireAt, prefs.quietHoursStart, prefs.quietHoursEnd);
+        }
 
         // Skip reminders that would fire in the past.
         if (fireAt.getTime() <= now.getTime()) {

@@ -26,10 +26,18 @@ const rows = [
     hint: "Reminders & quiet hours",
     route: routes.notificationSettings,
   },
-  { id: "theme", title: "Theme", hint: "Light (default)" },
-  { id: "privacy", title: "Privacy", hint: "How CapTap protects your data" },
-  { id: "security", title: "Security", hint: "Sessions & lockout" },
-  { id: "about", title: "About CapTap", hint: "Tap. Confirm. Peace of mind." },
+  {
+    id: "privacy",
+    title: "Privacy",
+    hint: "Data practices & delete account",
+    route: routes.privacy,
+  },
+  {
+    id: "about",
+    title: "About CapTap",
+    hint: "Tap. Confirm. Peace of mind.",
+    route: routes.about,
+  },
 ] as const;
 
 export default function SettingsScreen() {
@@ -43,26 +51,21 @@ export default function SettingsScreen() {
         {rows.map((row, index) => (
           <Pressable
             key={row.id}
-            onPress={() => {
-              if ("route" in row && row.route) {
-                router.push(row.route);
-                return;
-              }
-              Alert.alert(row.title, "This setting will connect in a later phase.");
-            }}
+            onPress={() => router.push(row.route)}
             accessibilityRole="button"
             accessibilityLabel={row.title}
+            accessibilityHint={row.hint}
             style={[styles.row, index < rows.length - 1 ? styles.divider : null]}
           >
             <View style={styles.copy}>
-              <Text style={styles.title} maxFontSizeMultiplier={1.4}>
+              <Text style={styles.title} maxFontSizeMultiplier={1.5}>
                 {row.title}
               </Text>
-              <Text style={styles.hint} maxFontSizeMultiplier={1.4}>
+              <Text style={styles.hint} maxFontSizeMultiplier={1.5}>
                 {row.hint}
               </Text>
             </View>
-            <ChevronRight color={colors.inkMuted} size={22} />
+            <ChevronRight color={colors.inkMuted} size={22} accessibilityElementsHidden />
           </Pressable>
         ))}
       </Card>
@@ -73,6 +76,14 @@ export default function SettingsScreen() {
           await signOut();
           router.replace(routes.welcome);
         }}
+        accessibilityHint="Signs you out of CapTap on this device"
+      />
+      <Button
+        label="Theme"
+        variant="ghost"
+        onPress={() =>
+          Alert.alert("Theme", "CapTap uses a calm light theme designed for readable contrast.")
+        }
       />
     </Screen>
   );

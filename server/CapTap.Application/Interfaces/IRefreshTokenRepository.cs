@@ -11,4 +11,6 @@ public interface IRefreshTokenRepository
     void Update(RefreshToken refreshToken);
 
     Task RevokeFamilyAsync(Guid familyId, string reason, CancellationToken cancellationToken = default);
+
+    Task RevokeAllForUserAsync(Guid userId, string reason, CancellationToken cancellationToken = default);
 }

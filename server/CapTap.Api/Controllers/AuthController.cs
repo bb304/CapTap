@@ -43,6 +43,7 @@ public sealed class AuthController : ApiControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(ApiResponse<AuthResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse<AuthResponse>>> Refresh(
@@ -65,6 +66,7 @@ public sealed class AuthController : ApiControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     [HttpPost("forgot-password")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse>> ForgotPassword(
@@ -76,6 +78,7 @@ public sealed class AuthController : ApiControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     [HttpPost("reset-password")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<ApiResponse>> ResetPassword(
@@ -84,6 +87,18 @@ public sealed class AuthController : ApiControllerBase
     {
         await _authService.ResetPasswordAsync(request, GetClientIp(), cancellationToken);
         return Ok(ApiResponse.Ok(message: "Password has been reset."));
+    }
+
+    [AllowAnonymous]
+    [EnableRateLimiting("auth")]
+    [HttpPost("verify-email")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<ApiResponse>> VerifyEmail(
+        [FromBody] VerifyEmailRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _authService.VerifyEmailAsync(request, GetClientIp(), cancellationToken);
+        return Ok(ApiResponse.Ok(message: "Email verified."));
     }
 
     private string? GetClientIp() =>

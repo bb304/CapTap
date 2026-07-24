@@ -1,3 +1,4 @@
+export { usersApi } from "./users";
 export { apiClient, unwrap, normalizeError } from "./client";
 export { authApi } from "./auth";
 export { medicationApi } from "./medication";

@@ -24,6 +24,19 @@ public sealed class PasswordResetTokenRepository : IPasswordResetTokenRepository
             cancellationToken);
     }
 
+    public async Task InvalidateUnusedForUserAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var utcNow = DateTime.UtcNow;
+        var active = await _dbContext.PasswordResetTokens
+            .Where(token => token.UserId == userId && token.UsedAt == null && token.ExpiresAt > utcNow)
+            .ToListAsync(cancellationToken);
+
+        foreach (var token in active)
+        {
+            token.UsedAt = utcNow;
+        }
+    }
+
     public async Task AddAsync(PasswordResetToken token, CancellationToken cancellationToken = default)
     {
         await _dbContext.PasswordResetTokens.AddAsync(token, cancellationToken);

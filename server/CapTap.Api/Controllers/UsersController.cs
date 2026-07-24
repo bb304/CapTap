@@ -36,4 +36,22 @@ public sealed class UsersController : AuthorizedApiControllerBase
         var profile = await _profiles.UpdateTimeZoneAsync(CurrentUserId, request, cancellationToken);
         return Success(profile);
     }
+
+    /// <summary>
+    /// Soft-delete the signed-in account: anonymize PII, revoke sessions, unassign NFC.
+    /// Medication logs are retained under the anonymized user id.
+    /// Requires current password confirmation.
+    /// </summary>
+    [HttpDelete("me")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteMe(
+        [FromBody] DeleteAccountRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+        await _profiles.DeleteAccountAsync(CurrentUserId, request, ip, cancellationToken);
+        return NoContent();
+    }
 }

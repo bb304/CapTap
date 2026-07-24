@@ -4,15 +4,17 @@ import { useRouter } from "expo-router";
 import { Button, Card, EmptyState, Screen, SectionHeader, SkeletonCard } from "@/components/ui";
 import { ErrorState } from "@/components/common/ErrorState";
 import { useMedicationLogHistory } from "@/hooks/useMedicationLogs";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { formatTime } from "@/utils/format";
 import { colors, spacing, typography } from "@/theme";
 
 export default function HistoryScreen() {
   const router = useRouter();
-  const { data, isLoading, isError, error, refetch, isRefetching } = useMedicationLogHistory({
+  const { data, isLoading, isError, error, refetch } = useMedicationLogHistory({
     page: 1,
     pageSize: 50,
   });
+  const { refreshing, onRefresh } = usePullToRefresh(refetch);
 
   if (isLoading) {
     return (
@@ -39,8 +41,8 @@ export default function HistoryScreen() {
     <Screen
       refreshControl={
         <RefreshControl
-          refreshing={isRefetching}
-          onRefresh={() => refetch()}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           tintColor={colors.primary}
         />
       }

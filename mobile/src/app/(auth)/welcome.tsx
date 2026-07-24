@@ -9,7 +9,7 @@ export default function WelcomeScreen() {
   const router = useRouter();
 
   return (
-    <Screen contentStyle={styles.content}>
+    <Screen scroll={false} contentStyle={styles.content}>
       <View style={styles.hero}>
         <Text style={styles.brand} accessibilityRole="header" maxFontSizeMultiplier={1.3}>
           CapTap
@@ -36,12 +36,14 @@ export default function WelcomeScreen() {
 
 const styles = StyleSheet.create({
   content: {
+    flex: 1,
     justifyContent: "space-between",
-    minHeight: "100%",
+    paddingBottom: spacing.xl,
   },
   hero: {
-    marginTop: spacing.xxxl,
-    gap: spacing.lg,
+    flexShrink: 1,
+    marginTop: spacing.xxl,
+    gap: spacing.md,
   },
   brand: {
     fontSize: 52,
@@ -60,6 +62,5 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: spacing.md,
-    marginBottom: spacing.xl,
   },
 });

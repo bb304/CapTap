@@ -8,6 +8,7 @@ import { Button, EmptyState, Screen, SectionHeader, SkeletonCard } from "@/compo
 import { ErrorState } from "@/components/common/ErrorState";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useLogMedication } from "@/hooks/useMedicationLogs";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { toUserMessage } from "@/api/errors";
 import type { TodayDose } from "@/types/dashboard";
 import { toScheduledDoseIso } from "@/utils/format";
@@ -16,7 +17,8 @@ import { colors, spacing } from "@/theme";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { data, isLoading, isError, error, refetch, isRefetching } = useDashboard();
+  const { data, isLoading, isError, error, refetch } = useDashboard();
+  const { refreshing, onRefresh } = usePullToRefresh(refetch);
   const logMedication = useLogMedication();
   const [pendingDoseId, setPendingDoseId] = useState<string | null>(null);
 
@@ -62,8 +64,8 @@ export default function DashboardScreen() {
     <Screen
       refreshControl={
         <RefreshControl
-          refreshing={isRefetching}
-          onRefresh={() => refetch()}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           tintColor={colors.primary}
         />
       }

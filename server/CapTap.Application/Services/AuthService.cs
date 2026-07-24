@@ -20,7 +20,7 @@ public sealed class AuthService : IAuthService
 
     private readonly IUserRepository _users;
     private readonly IRefreshTokenRepository _refreshTokens;
-    private readonly IGenericRepository<EmailVerificationToken> _emailVerificationTokens;
+    private readonly IEmailVerificationTokenRepository _emailVerificationTokens;
     private readonly IPasswordResetTokenRepository _passwordResetTokens;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordService _passwordService;
@@ -32,13 +32,14 @@ public sealed class AuthService : IAuthService
     private readonly IValidator<RefreshTokenRequest> _refreshValidator;
     private readonly IValidator<ForgotPasswordRequest> _forgotPasswordValidator;
     private readonly IValidator<ResetPasswordRequest> _resetPasswordValidator;
+    private readonly IValidator<VerifyEmailRequest> _verifyEmailValidator;
     private readonly ILogger<AuthService> _logger;
     private readonly AuthOptions _authOptions;
 
     public AuthService(
         IUserRepository users,
         IRefreshTokenRepository refreshTokens,
-        IGenericRepository<EmailVerificationToken> emailVerificationTokens,
+        IEmailVerificationTokenRepository emailVerificationTokens,
         IPasswordResetTokenRepository passwordResetTokens,
         IUnitOfWork unitOfWork,
         IPasswordService passwordService,
@@ -50,6 +51,7 @@ public sealed class AuthService : IAuthService
         IValidator<RefreshTokenRequest> refreshValidator,
         IValidator<ForgotPasswordRequest> forgotPasswordValidator,
         IValidator<ResetPasswordRequest> resetPasswordValidator,
+        IValidator<VerifyEmailRequest> verifyEmailValidator,
         ILogger<AuthService> logger,
         IOptions<AuthOptions> authOptions)
     {
@@ -67,6 +69,7 @@ public sealed class AuthService : IAuthService
         _refreshValidator = refreshValidator;
         _forgotPasswordValidator = forgotPasswordValidator;
         _resetPasswordValidator = resetPasswordValidator;
+        _verifyEmailValidator = verifyEmailValidator;
         _logger = logger;
         _authOptions = authOptions.Value;
     }
@@ -130,7 +133,7 @@ public sealed class AuthService : IAuthService
         var email = NormalizeEmail(request.Email);
         var user = await _users.GetByEmailAsync(email, cancellationToken);
 
-        if (user is null || !user.IsActive)
+        if (user is null || !user.IsActive || user.Status == UserStatus.Deleted || user.DeletedAt is not null)
         {
             await _auditService.LogAsync("LOGIN_FAILED", "User", null, null, ipAddress, cancellationToken);
             throw new UnauthorizedException("Invalid email or password.");
@@ -202,7 +205,7 @@ public sealed class AuthService : IAuthService
         }
 
         var user = await _users.GetByIdAsync(stored.UserId, cancellationToken);
-        if (user is null || !user.IsActive || IsLocked(user))
+        if (user is null || !user.IsActive || user.Status == UserStatus.Deleted || user.DeletedAt is not null || IsLocked(user))
         {
             throw new UnauthorizedException("Invalid or expired refresh token.");
         }
@@ -251,6 +254,8 @@ public sealed class AuthService : IAuthService
 
         if (user is not null && user.IsActive)
         {
+            await _passwordResetTokens.InvalidateUnusedForUserAsync(user.Id, cancellationToken);
+
             var resetToken = _tokenService.GenerateRefreshToken();
             await _passwordResetTokens.AddAsync(new PasswordResetToken
             {
@@ -303,9 +308,40 @@ public sealed class AuthService : IAuthService
         stored.UsedAt = DateTime.UtcNow;
         _users.Update(user);
         _passwordResetTokens.Update(stored);
+        await _refreshTokens.RevokeAllForUserAsync(user.Id, "password_reset", cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await _auditService.LogAsync("PASSWORD_RESET_SUCCESS", "User", user.Id, user.Id, ipAddress, cancellationToken);
+    }
+
+    public async Task VerifyEmailAsync(
+        VerifyEmailRequest request,
+        string? ipAddress,
+        CancellationToken cancellationToken = default)
+    {
+        await ValidateAsync(_verifyEmailValidator, request, cancellationToken);
+
+        var tokenHash = _tokenService.HashToken(request.Token);
+        var stored = await _emailVerificationTokens.GetActiveByTokenHashAsync(tokenHash, cancellationToken);
+
+        if (stored is null)
+        {
+            throw new InvalidRequestException("Unable to verify email.");
+        }
+
+        var user = await _users.GetByIdAsync(stored.UserId, cancellationToken);
+        if (user is null || !user.IsActive || user.Status == UserStatus.Deleted)
+        {
+            throw new InvalidRequestException("Unable to verify email.");
+        }
+
+        user.EmailVerified = true;
+        stored.UsedAt = DateTime.UtcNow;
+        _users.Update(user);
+        _emailVerificationTokens.Update(stored);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _auditService.LogAsync("EMAIL_VERIFIED", "User", user.Id, user.Id, ipAddress, cancellationToken);
     }
 
     private async Task HandleFailedLoginAsync(User user, string? ipAddress, CancellationToken cancellationToken)

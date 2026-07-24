@@ -27,3 +27,16 @@ export function useForgotPassword() {
       authApi.forgotPassword({ email: vars.email.trim().toLowerCase() }),
   });
 }
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: (vars: { token: string; newPassword: string }) =>
+      authApi.resetPassword({ token: vars.token, newPassword: vars.newPassword }),
+  });
+}
+
+export function useVerifyEmail() {
+  return useMutation({
+    mutationFn: (token: string) => authApi.verifyEmail({ token }),
+  });
+}

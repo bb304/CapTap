@@ -32,12 +32,20 @@ function makeQueryClient() {
 }
 
 function wireOnlineManager() {
-  return onlineManager.setEventListener((setOnline) =>
-    NetInfo.addEventListener((state) => {
+  return onlineManager.setEventListener((setOnline) => {
+    let debounce: ReturnType<typeof setTimeout> | undefined;
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      // Simulator NetInfo often flaps isInternetReachable null↔true; debounce
+      // so reconnect refetches don't thrash the UI.
       const online = Boolean(state.isConnected && state.isInternetReachable !== false);
-      setOnline(online);
-    }),
-  );
+      clearTimeout(debounce);
+      debounce = setTimeout(() => setOnline(online), 400);
+    });
+    return () => {
+      clearTimeout(debounce);
+      unsubscribe();
+    };
+  });
 }
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {

@@ -225,6 +225,27 @@ public sealed class AuthServiceTests
     }
 
     [Fact]
+    public async Task VerifyEmail_WithValidToken_MarksVerified()
+    {
+        var fixture = AuthTestFixture.Create();
+        await fixture.Sut.RegisterAsync(
+            new RegisterRequest
+            {
+                Email = "verify@example.com",
+                Password = ValidPassword,
+                ConfirmPassword = ValidPassword
+            },
+            null);
+
+        var token = fixture.Emails.VerificationTokens.Single();
+        await fixture.Sut.VerifyEmailAsync(new VerifyEmailRequest { Token = token }, "127.0.0.1");
+
+        var user = fixture.Users.Items.Single(u => u.Email == "verify@example.com");
+        user.EmailVerified.Should().BeTrue();
+        fixture.Audit.Actions.Should().Contain("EMAIL_VERIFIED");
+    }
+
+    [Fact]
     public async Task Login_RepeatedFailures_LocksAccount()
     {
         var fixture = AuthTestFixture.Create();
@@ -264,6 +285,90 @@ public sealed class AuthServiceTests
         exception.Which.Message.Should().Contain("locked");
     }
 
+    [Fact]
+    public async Task ResetPassword_RevokesExistingRefreshTokens()
+    {
+        var fixture = AuthTestFixture.Create();
+        await fixture.Sut.RegisterAsync(
+            new RegisterRequest
+            {
+                Email = "reset@example.com",
+                Password = ValidPassword,
+                ConfirmPassword = ValidPassword
+            },
+            null);
+
+        var login = await fixture.Sut.LoginAsync(
+            new LoginRequest { Email = "reset@example.com", Password = ValidPassword },
+            null);
+
+        await fixture.Sut.ForgotPasswordAsync(
+            new ForgotPasswordRequest { Email = "reset@example.com" },
+            null);
+
+        var rawToken = fixture.Emails.ResetTokens.Single();
+        await fixture.Sut.ResetPasswordAsync(
+            new ResetPasswordRequest
+            {
+                Token = rawToken,
+                NewPassword = "NewSecure1!"
+            },
+            null);
+
+        fixture.RefreshTokens.Items.Where(t => t.RevokedAt is null).Should().BeEmpty();
+        fixture.RefreshTokens.Items.Should().Contain(t => t.RevokedReason == "password_reset");
+        fixture.Audit.Actions.Should().Contain("PASSWORD_RESET_SUCCESS");
+
+        // Old refresh token must no longer work.
+        var refresh = () => fixture.Sut.RefreshTokenAsync(
+            new RefreshTokenRequest { RefreshToken = login.RefreshToken },
+            null);
+        await refresh.Should().ThrowAsync<UnauthorizedException>();
+    }
+
+    [Fact]
+    public async Task ForgotPassword_InvalidatesPriorUnusedResetTokens()
+    {
+        var fixture = AuthTestFixture.Create();
+        await fixture.Sut.RegisterAsync(
+            new RegisterRequest
+            {
+                Email = "many@example.com",
+                Password = ValidPassword,
+                ConfirmPassword = ValidPassword
+            },
+            null);
+
+        await fixture.Sut.ForgotPasswordAsync(
+            new ForgotPasswordRequest { Email = "many@example.com" },
+            null);
+        var firstToken = fixture.Emails.ResetTokens[^1];
+
+        await fixture.Sut.ForgotPasswordAsync(
+            new ForgotPasswordRequest { Email = "many@example.com" },
+            null);
+        var secondToken = fixture.Emails.ResetTokens[^1];
+
+        var useFirst = () => fixture.Sut.ResetPasswordAsync(
+            new ResetPasswordRequest
+            {
+                Token = firstToken,
+                NewPassword = "NewSecure1!"
+            },
+            null);
+        await useFirst.Should().ThrowAsync<InvalidRequestException>();
+
+        await fixture.Sut.ResetPasswordAsync(
+            new ResetPasswordRequest
+            {
+                Token = secondToken,
+                NewPassword = "NewSecure1!"
+            },
+            null);
+
+        fixture.Audit.Actions.Should().Contain("PASSWORD_RESET_SUCCESS");
+    }
+
     private sealed class AuthTestFixture
     {
         public required AuthService Sut { get; init; }
@@ -277,7 +382,7 @@ public sealed class AuthServiceTests
         {
             var users = new InMemoryUserRepository();
             var refreshTokens = new InMemoryRefreshTokenRepository();
-            var emailTokens = new InMemoryGenericRepository<EmailVerificationToken>();
+            var emailTokens = new InMemoryEmailVerificationTokenRepository();
             var resetTokens = new InMemoryPasswordResetTokenRepository();
             var unitOfWork = new FakeUnitOfWork();
             var passwords = new FakePasswordService();
@@ -300,6 +405,7 @@ public sealed class AuthServiceTests
                 new RefreshTokenRequestValidator(),
                 new ForgotPasswordRequestValidator(),
                 new ResetPasswordRequestValidator(),
+                new VerifyEmailRequestValidator(),
                 NullLogger<AuthService>.Instance,
                 Options.Create(new AuthOptions
                 {
@@ -385,6 +491,45 @@ public sealed class AuthServiceTests
 
             return Task.CompletedTask;
         }
+
+        public Task RevokeAllForUserAsync(Guid userId, string reason, CancellationToken cancellationToken = default)
+        {
+            var utcNow = DateTime.UtcNow;
+            foreach (var token in Items.Where(t => t.UserId == userId && t.RevokedAt is null))
+            {
+                token.RevokedAt = utcNow;
+                token.RevokedReason = reason;
+            }
+
+            return Task.CompletedTask;
+        }
+    }
+
+    private sealed class InMemoryEmailVerificationTokenRepository : IEmailVerificationTokenRepository
+    {
+        private readonly List<EmailVerificationToken> _items = [];
+
+        public Task<EmailVerificationToken?> GetActiveByTokenHashAsync(
+            string tokenHash,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(_items.FirstOrDefault(t =>
+                t.TokenHash == tokenHash && t.UsedAt is null && t.ExpiresAt > DateTime.UtcNow));
+
+        public Task AddAsync(EmailVerificationToken token, CancellationToken cancellationToken = default)
+        {
+            if (token.Id == Guid.Empty)
+            {
+                token.Id = Guid.NewGuid();
+            }
+
+            _items.Add(token);
+            return Task.CompletedTask;
+        }
+
+        public void Update(EmailVerificationToken token)
+        {
+            // tracked in-memory
+        }
     }
 
     private sealed class InMemoryPasswordResetTokenRepository : IPasswordResetTokenRepository
@@ -394,6 +539,18 @@ public sealed class AuthServiceTests
         public Task<PasswordResetToken?> GetActiveByTokenHashAsync(string tokenHash, CancellationToken cancellationToken = default) =>
             Task.FromResult(_items.FirstOrDefault(t =>
                 t.TokenHash == tokenHash && t.UsedAt is null && t.ExpiresAt > DateTime.UtcNow));
+
+        public Task InvalidateUnusedForUserAsync(Guid userId, CancellationToken cancellationToken = default)
+        {
+            var utcNow = DateTime.UtcNow;
+            foreach (var token in _items.Where(t =>
+                         t.UserId == userId && t.UsedAt is null && t.ExpiresAt > utcNow))
+            {
+                token.UsedAt = utcNow;
+            }
+
+            return Task.CompletedTask;
+        }
 
         public Task AddAsync(PasswordResetToken token, CancellationToken cancellationToken = default)
         {
@@ -474,15 +631,21 @@ public sealed class AuthServiceTests
     private sealed class FakeEmailService : IEmailService
     {
         public List<string> VerificationEmails { get; } = [];
+        public List<string> VerificationTokens { get; } = [];
+        public List<string> ResetTokens { get; } = [];
 
         public Task SendEmailVerificationAsync(string email, string verificationToken, CancellationToken cancellationToken = default)
         {
             VerificationEmails.Add(email);
+            VerificationTokens.Add(verificationToken);
             return Task.CompletedTask;
         }
 
-        public Task SendPasswordResetAsync(string email, string resetToken, CancellationToken cancellationToken = default) =>
-            Task.CompletedTask;
+        public Task SendPasswordResetAsync(string email, string resetToken, CancellationToken cancellationToken = default)
+        {
+            ResetTokens.Add(resetToken);
+            return Task.CompletedTask;
+        }
     }
 
     private sealed class FakeAuditService : IAuditService

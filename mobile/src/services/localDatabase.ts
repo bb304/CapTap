@@ -262,8 +262,8 @@ export const LocalDatabase = {
     return row?.value ?? null;
   },
 
-  /** Test helper — wipe tables. */
-  async __resetForTests(): Promise<void> {
+  /** Wipe offline queue, caches, and sync meta (sign-out / account delete). */
+  async clearAllUserData(): Promise<void> {
     const db = await getDb();
     await db.execAsync(`
       DELETE FROM offline_queue;
@@ -271,5 +271,10 @@ export const LocalDatabase = {
       DELETE FROM nfc_tag_cache;
       DELETE FROM sync_meta;
     `);
+  },
+
+  /** Test helper — wipe tables. */
+  async __resetForTests(): Promise<void> {
+    await this.clearAllUserData();
   },
 };

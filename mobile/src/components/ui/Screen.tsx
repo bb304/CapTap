@@ -23,7 +23,15 @@ export function Screen({
   const maxWidth = width >= 768 ? 720 : undefined;
 
   const body = (
-    <View style={[styles.content, maxWidth ? styles.centered : null, { maxWidth }, contentStyle]}>
+    <View
+      style={[
+        styles.content,
+        !scroll ? styles.contentFixed : null,
+        maxWidth ? styles.centered : null,
+        { maxWidth },
+        contentStyle,
+      ]}
+    >
       {children}
     </View>
   );
@@ -44,7 +52,7 @@ export function Screen({
   }
 
   return (
-    <SafeAreaView style={[styles.safe, style]} edges={["top", "left", "right"]}>
+    <SafeAreaView style={[styles.safe, style]} edges={["top", "left", "right", "bottom"]}>
       <View style={[styles.fill, maxWidth ? styles.centered : null]}>{body}</View>
     </SafeAreaView>
   );
@@ -75,5 +83,8 @@ const styles = StyleSheet.create({
     paddingTop: spacing.lg,
     gap: spacing.lg,
     width: "100%",
+  },
+  contentFixed: {
+    flex: 1,
   },
 });

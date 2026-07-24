@@ -7,6 +7,7 @@ export const endpoints = {
     logout: "/api/v1/auth/logout",
     forgotPassword: "/api/v1/auth/forgot-password",
     resetPassword: "/api/v1/auth/reset-password",
+    verifyEmail: "/api/v1/auth/verify-email",
   },
   medications: {
     list: "/api/v1/medications",
@@ -39,5 +40,6 @@ export const endpoints = {
   users: {
     me: "/api/v1/users/me",
     timezone: "/api/v1/users/me/timezone",
+    deleteMe: "/api/v1/users/me",
   },
 } as const;

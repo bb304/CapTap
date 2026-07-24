@@ -23,7 +23,7 @@ public sealed class SmtpEmailService : IEmailService
 
     public Task SendEmailVerificationAsync(string email, string verificationToken, CancellationToken cancellationToken = default)
     {
-        var link = $"{_settings.AppBaseUrl.TrimEnd('/')}/verify-email?token={Uri.EscapeDataString(verificationToken)}";
+        var link = BuildAppLink("verify-email", verificationToken);
         var body =
             $"Welcome to CapTap.\n\nVerify your email by opening this link:\n{link}\n\nIf you did not create an account, ignore this message.";
 
@@ -32,11 +32,29 @@ public sealed class SmtpEmailService : IEmailService
 
     public Task SendPasswordResetAsync(string email, string resetToken, CancellationToken cancellationToken = default)
     {
-        var link = $"{_settings.AppBaseUrl.TrimEnd('/')}/reset-password?token={Uri.EscapeDataString(resetToken)}";
+        var link = BuildAppLink("reset-password", resetToken);
         var body =
             $"We received a password reset request for your CapTap account.\n\nReset your password:\n{link}\n\nIf you did not request this, ignore this message.";
 
         return SendAsync(email, "Reset your CapTap password", body, cancellationToken);
+    }
+
+    private string BuildAppLink(string path, string token)
+    {
+        // Prefer an https:// AppBaseUrl in production so links can use verified
+        // Universal/App Links. Bare captap:// custom schemes are spoofable on some devices.
+        var root = (_settings.AppBaseUrl ?? "captap://").Trim();
+        if (!root.EndsWith("://", StringComparison.Ordinal) && !root.EndsWith('/'))
+        {
+            root += "/";
+        }
+
+        if (root.EndsWith("://", StringComparison.Ordinal))
+        {
+            return $"{root}{path}?token={Uri.EscapeDataString(token)}";
+        }
+
+        return $"{root.TrimEnd('/')}/{path}?token={Uri.EscapeDataString(token)}";
     }
 
     private async Task SendAsync(string toEmail, string subject, string textBody, CancellationToken cancellationToken)

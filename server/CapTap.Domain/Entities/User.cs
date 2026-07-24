@@ -26,6 +26,9 @@ public class User : BaseEntity
     /// <summary>IANA time zone id (e.g. America/New_York). Timestamps stay UTC; local day uses this.</summary>
     public string TimeZoneId { get; set; } = "UTC";
 
+    /// <summary>Set when the account is soft-deleted and PII is anonymized.</summary>
+    public DateTime? DeletedAt { get; set; }
+
     public ICollection<Medication> Medications { get; set; } = new List<Medication>();
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();

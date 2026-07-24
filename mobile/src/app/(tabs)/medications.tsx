@@ -6,12 +6,14 @@ import { FloatingActionButton } from "@/components/common/FloatingActionButton";
 import { EmptyState, Screen, SectionHeader, SkeletonCard } from "@/components/ui";
 import { ErrorState } from "@/components/common/ErrorState";
 import { useMedications } from "@/hooks/useMedications";
+import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { routes } from "@/constants/routes";
 import { colors } from "@/theme";
 
 export default function MedicationsScreen() {
   const router = useRouter();
-  const { data, isLoading, isError, error, refetch, isRefetching } = useMedications();
+  const { data, isLoading, isError, error, refetch } = useMedications();
+  const { refreshing, onRefresh } = usePullToRefresh(refetch);
 
   if (isLoading) {
     return (
@@ -37,8 +39,8 @@ export default function MedicationsScreen() {
       <Screen
         refreshControl={
           <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={() => refetch()}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
             tintColor={colors.primary}
           />
         }

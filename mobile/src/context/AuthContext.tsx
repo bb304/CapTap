@@ -15,9 +15,11 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/api/auth";
 import { session } from "@/api/session";
 import type { AuthUser } from "@/types/auth";
+import { clearLocalUserState } from "@/services/clearLocalUserState";
 import { decodeTokenClaims } from "@/utils/jwt";
 import { syncDeviceTimeZone } from "@/utils/timeZone";
 
@@ -41,6 +43,7 @@ function userFromAccessToken(): AuthUser | null {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<AuthStatus>("restoring");
   const [user, setUser] = useState<AuthUser | null>(null);
   const mounted = useRef(true);
@@ -56,33 +59,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setStatus("authenticated");
         void syncDeviceTimeZone();
       } else {
+        // No session — drop any leftover offline cache from a prior install/user.
+        await clearLocalUserState(queryClient);
+        if (!mounted.current) return;
         setStatus("unauthenticated");
       }
     })();
     return () => {
       mounted.current = false;
     };
-  }, []);
+  }, [queryClient]);
 
   // A failed refresh (expired/revoked session) drops us to Login.
   useEffect(() => {
     return session.onExpire(() => {
-      if (!mounted.current) return;
-      setUser(null);
-      setStatus("unauthenticated");
+      void (async () => {
+        await clearLocalUserState(queryClient);
+        if (!mounted.current) return;
+        setUser(null);
+        setStatus("unauthenticated");
+      })();
     });
-  }, []);
+  }, [queryClient]);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const tokens = await authApi.login({
-      email: email.trim().toLowerCase(),
-      password,
-    });
-    await session.setTokens(tokens);
-    setUser(userFromAccessToken());
-    setStatus("authenticated");
-    void syncDeviceTimeZone();
-  }, []);
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      // Clear prior account data before hydrating the new session.
+      await clearLocalUserState(queryClient);
+      const tokens = await authApi.login({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      await session.setTokens(tokens);
+      setUser(userFromAccessToken());
+      setStatus("authenticated");
+      void syncDeviceTimeZone();
+    },
+    [queryClient],
+  );
 
   const signUp = useCallback(
     async (email: string, password: string, confirmPassword: string) => {
@@ -110,9 +124,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
     await session.clear();
+    await clearLocalUserState(queryClient);
     setUser(null);
     setStatus("unauthenticated");
-  }, []);
+  }, [queryClient]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

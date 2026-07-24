@@ -115,6 +115,29 @@ public static class ServiceExtensions
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.FromMinutes(1)
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var userIdValue = context.Principal?.FindFirst("userId")?.Value;
+                        if (!Guid.TryParse(userIdValue, out var userId))
+                        {
+                            context.Fail("Invalid user identity.");
+                            return;
+                        }
+
+                        var users = context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
+                        var user = await users.GetByIdAsync(userId, context.HttpContext.RequestAborted);
+                        if (user is null
+                            || !user.IsActive
+                            || user.Status == CapTap.Domain.Enums.UserStatus.Deleted
+                            || user.DeletedAt is not null)
+                        {
+                            context.Fail("User is inactive or deleted.");
+                        }
+                    }
+                };
             });
 
         services.AddAuthorization();

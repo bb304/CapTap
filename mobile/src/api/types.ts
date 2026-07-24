@@ -39,6 +39,10 @@ export type ResetPasswordRequest = {
   newPassword: string;
 };
 
+export type VerifyEmailRequest = {
+  token: string;
+};
+
 export type RefreshTokenRequest = {
   refreshToken: string;
 };

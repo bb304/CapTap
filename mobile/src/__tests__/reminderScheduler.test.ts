@@ -86,4 +86,43 @@ describe("buildReminderPlan", () => {
     expect(plan[0].fireAt.getHours()).toBe(8);
     expect(plan[0].fireAt.getMinutes()).toBe(30);
   });
+
+  it("defers overnight fire times to quietHoursEnd the next morning", () => {
+    // Dose 21:00 + 60m offset → 22:00, inside 22:00–07:00 quiet → defer to 07:00 next day
+    const now = new Date(2026, 6, 24, 18, 0, 0);
+    const plan = buildReminderPlan({
+      medications: [med({ schedules: [{ id: "s1", scheduledTime: "21:00:00", doseQuantity: 1 }] })],
+      preferences: {
+        ...DEFAULT_NOTIFICATION_PREFERENCES,
+        quietHoursEnabled: true,
+        quietHoursStart: "22:00",
+        quietHoursEnd: "07:00",
+      },
+      now,
+      horizonDays: 1,
+    });
+
+    expect(plan).toHaveLength(1);
+    expect(plan[0].fireAt.getDate()).toBe(25);
+    expect(plan[0].fireAt.getHours()).toBe(7);
+    expect(plan[0].fireAt.getMinutes()).toBe(0);
+  });
+
+  it("does not move fire times outside quiet hours", () => {
+    const now = new Date(2026, 6, 24, 7, 0, 0);
+    const plan = buildReminderPlan({
+      medications: [med()],
+      preferences: {
+        ...DEFAULT_NOTIFICATION_PREFERENCES,
+        quietHoursEnabled: true,
+        quietHoursStart: "22:00",
+        quietHoursEnd: "07:00",
+      },
+      now,
+      horizonDays: 1,
+    });
+
+    expect(plan[0].fireAt.getHours()).toBe(9);
+    expect(plan[0].fireAt.getMinutes()).toBe(0);
+  });
 });

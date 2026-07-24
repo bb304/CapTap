@@ -71,6 +71,7 @@ public static class InfrastructureServiceExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+        services.AddScoped<IEmailVerificationTokenRepository, EmailVerificationTokenRepository>();
         services.AddScoped<IMedicationRepository, MedicationRepository>();
         services.AddScoped<IScheduleRepository, ScheduleRepository>();
         services.AddScoped<IMedicationLogRepository, MedicationLogRepository>();

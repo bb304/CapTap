@@ -8,7 +8,8 @@ export type NotificationPreferences = {
    */
   reminderOffsetMinutes: number;
   /**
-   * Quiet hours placeholder (Phase 10 stores prefs; enforcement deferred).
+   * When enabled, reminders that would fire inside [quietHoursStart, quietHoursEnd)
+   * are deferred to quietHoursEnd (supports overnight windows like 22:00–07:00).
    */
   quietHoursEnabled: boolean;
   quietHoursStart: string; // "HH:mm"

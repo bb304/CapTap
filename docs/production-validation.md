@@ -16,22 +16,20 @@ Phase 10 moves CapTap from a functional prototype toward reliable daily use:
 3. Colima/Docker Postgres + CapTap API on port `5001`
 4. Expo account + EAS CLI (`npm i -g eas-cli`)
 
-### Development build setup
+### Development build setup (Android-first — no Apple password)
 
-Interactive (requires your Expo account — agents cannot complete `eas login` for you):
+CapTap NFC + reliable local reminders need a **development build**. Prefer Android if you do not want to enter an Apple ID password:
 
 ```bash
 cd mobile
 npx eas login
-npm run eas:init
-# Paste the printed projectId into app.json → expo.extra.eas.projectId
-# (replace "replace-with-eas-project-id")
-
-# Build a device client (NFC + notifications require this)
-npm run build:dev:ios        # or build:dev:android
-# Install the artifact on a physical device, then:
+npm run build:dev:android
+# Install the APK from the EAS build page onto an NFC Android phone
 EXPO_PUBLIC_API_URL=http://<YOUR_LAN_IP>:5001 npx expo start --dev-client
 ```
+
+**iOS without password:** create an App Store Connect API key and register it via `eas credentials` (choose API key, not Apple ID password).  
+**iOS Simulator** (`eas build --profile development-simulator --platform ios`): UI only — NFC unsupported.
 
 Do **not** rely on Expo Go for NFC or reliable local notifications.
 
@@ -122,7 +120,7 @@ Preferences (SecureStore):
 
 - `enabled`
 - `reminderOffsetMinutes` (default `60`)
-- `quietHoursEnabled` + start/end — **stored placeholder; not enforced yet**
+- `quietHoursEnabled` + start/end — **enforced** in `buildReminderPlan` (defer fireAt to quietHoursEnd)
 
 Settings UI: Settings → Notifications.
 
@@ -245,8 +243,9 @@ See `docs/offline-architecture.md` for architecture. Run this checklist on a **d
 
 Reminder cancel must happen on the **local success path** (offline enqueue), not only after a server 200 — see `useLogMedication` → `cancelReminderAfterLog`.
 
-## Phase 12 follow-ups
+## Phase 12 follow-ups / Phase 13
 
+- Final demo + Android-first path: `docs/final-demo.md`
 - Cloud deploy: `docs/aws-deployment.md`
 - Monitoring: `docs/monitoring.md`
 - Hardening review: `docs/production-hardening.md`

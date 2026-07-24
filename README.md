@@ -32,6 +32,23 @@ CapTap is a secure medication adherence application that helps people track dail
 | Phase 10 — Device validation & reminders | Complete | Local reminders, EAS profiles, device checklists |
 | Phase 11 — Offline-first sync | Complete | SQLite queue, auto-sync, cached NFC resolve |
 | Phase 12 — Production readiness | Complete | CI/CD, Docker image, AWS/monitoring docs, hardening |
+| Phase 13 — Final demo readiness | Complete | Quiet hours, Android-first device path, demo checklist |
+| Phase 14 — Account privacy & accessibility | Complete | Soft-delete/anonymize account, Privacy/About screens |
+
+### Completed in Phase 14
+
+- `DELETE /api/v1/users/me` — soft-delete, anonymize email/password, revoke sessions, unassign NFC, archive meds; **retain logs**
+- `UserStatus.Deleted` + `DeletedAt`; audit `ACCOUNT_DELETED`
+- Settings → Privacy (delete account) and About; clearer a11y labels / Dynamic Type headroom
+- Docs: `docs/account-privacy.md`
+
+### Completed in Phase 13
+
+- Quiet hours **enforced**: reminders inside the window defer to `quietHoursEnd` (overnight-safe)
+- Settings → Reminders quiet-hours presets (no longer a placeholder)
+- Android-first EAS path documented (APK, no Apple password); ASC API key noted for iOS
+- Final demo script + airplane-mode checklist: `docs/final-demo.md`
+- Tests for quiet-hours deferral and offline reminder cancel helper
 
 ### Completed in Phase 12
 
@@ -204,6 +221,9 @@ Capture on a development build for demos (Welcome, Dashboard, NFC confirm, Offli
 
 | Doc | Topic |
 |-----|--------|
+| `docs/user-testing-readiness.md` | Doc vs code audit + tester caveats |
+| `docs/account-privacy.md` | Soft-delete, anonymize, retain logs |
+| `docs/final-demo.md` | Demo script, Android-first device path, airplane E2E |
 | `docs/authentication.md` | Auth, JWT, lockout |
 | `docs/medication-management.md` | Medication CRUD + OpenFDA |
 | `docs/scheduling.md` | Schedules + adherence statuses |
@@ -235,16 +255,13 @@ CapTap/
 
 ## Future roadmap
 
-- Quiet-hours enforcement for reminders
-- Soft-delete / anonymization workflows
-- Remote push (APNs) if local reminders are insufficient
+- Remote push (APNs) if local reminders are insufficient — roadmap Phase 10 said not for MVP
 - Full Terraform/ECS when traffic outgrows single-EC2 demos
-- Store accessibility audit (VoiceOver / TalkBack)
+- Store accessibility audit (VoiceOver / TalkBack) on physical devices
 
 ## Intentionally deferred
 
-- Soft-delete / anonymization workflows
 - Medication log edit/delete APIs (audit event names reserved)
-- Quiet-hours enforcement (preference stored; behavior later)
-- Remote push / APNs (local reminders only)
+- Remote push / APNs (local reminders only; quiet hours enforced locally)
 - Full IaC (docs-first AWS path shipped in Phase 12)
+- Caregiver accounts / AI / dosage advice (master prompt MVP boundaries)

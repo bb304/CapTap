@@ -48,12 +48,14 @@ Checklist derived from the CapTap AI Coding Agent Master Prompt + TAD. Items mar
 | AWS + monitoring docs | Done | `docs/aws-deployment.md`, `docs/monitoring.md` |
 | EditorConfig | Done | Repo root |
 | Architecture / API docs | Done | `docs/*` |
+| Quiet-hours reminder deferral | Done | Phase 13 — `buildReminderPlan` + Settings presets |
+| Final demo guide | Done | `docs/final-demo.md` |
 
 ## Device validation still required (cannot be automated here)
 
-1. `eas login` → `npm run eas:init` → paste real `projectId` into `mobile/app.json`
-2. Install a development build (not Expo Go) for NFC + reliable notifications
+1. Prefer **Android** APK: `npm run build:dev:android` (no Apple password)
+2. Or iOS via App Store Connect API key (`eas credentials`) — not Apple ID password
 3. Airplane-mode offline E2E (manual + cached NFC → reconnect sync)
-4. Confirm reminders cancel when logging offline
+4. Confirm reminders cancel when logging offline (unit-covered; still verify on device)
 
-See `docs/production-validation.md` and `docs/offline-architecture.md`.
+See `docs/final-demo.md`, `docs/production-validation.md`, and `docs/offline-architecture.md`.

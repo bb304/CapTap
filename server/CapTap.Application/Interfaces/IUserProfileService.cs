@@ -10,4 +10,15 @@ public interface IUserProfileService
         Guid userId,
         UpdateTimeZoneRequest request,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Soft-delete the account: anonymize PII, deactivate, revoke sessions, unassign NFC tags.
+    /// Medication logs are retained under the anonymized user id (DDD data-retention).
+    /// Requires the current password (step-up authentication).
+    /// </summary>
+    Task DeleteAccountAsync(
+        Guid userId,
+        DeleteAccountRequest request,
+        string? ipAddress,
+        CancellationToken cancellationToken = default);
 }

@@ -129,9 +129,15 @@ Production **requires** `EMAIL_PROVIDER=Smtp` with `EMAIL_HOST` and `EMAIL_FROM`
 | POST | `/api/v1/auth/logout` | Revokes token family |
 | POST | `/api/v1/auth/forgot-password` | Enumeration-safe |
 | POST | `/api/v1/auth/reset-password` | Token + new password |
+| POST | `/api/v1/auth/verify-email` | Marks `EmailVerified` |
 | GET | `/api/v1/medications` | Authorized (Phase 4+) |
 | GET | `/api/v1/nfc/tags` | Authorized (Phase 9) |
 | PUT | `/api/v1/users/me/timezone` | Authorized (Phase 9) |
+| DELETE | `/api/v1/users/me` | Soft-delete + anonymize; body `{ "password" }` required |
+
+### Account deletion (Phase 14)
+
+Soft-deletes the signed-in user, anonymizes email/password, revokes sessions, unassigns NFC tags, archives medications, and **retains** medication logs under the anonymized user id. See `docs/account-privacy.md`.
 
 ### Auth response shape
 

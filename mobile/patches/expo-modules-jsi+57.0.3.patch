@@ -1,0 +1,13 @@
+diff --git a/node_modules/expo-modules-jsi/apple/scripts/build-xcframework.sh b/node_modules/expo-modules-jsi/apple/scripts/build-xcframework.sh
+index 28d3249..5444cd5 100755
+--- a/node_modules/expo-modules-jsi/apple/scripts/build-xcframework.sh
++++ b/node_modules/expo-modules-jsi/apple/scripts/build-xcframework.sh
+@@ -30,7 +30,7 @@ PACKAGE_NAME="ExpoModulesJSI"
+ XCFRAMEWORK_PATH="${PACKAGE_DIR}/Products/${PACKAGE_NAME}.xcframework"
+ 
+ CONFIGURATION="Release"
+-DERIVED_DATA_PATH="${PACKAGE_DIR}/.DerivedData"
++DERIVED_DATA_PATH="${EXPO_MODULES_JSI_DERIVED_DATA_PATH:-$HOME/Library/Caches/ExpoModulesJSI/DerivedData}"
+ SPM_BUILD_PATH="${PACKAGE_DIR}/.build"
+ SPM_WORKSPACE_PATH="${PACKAGE_DIR}/.swiftpm"
+ BUILD_PRODUCTS_PATH="${DERIVED_DATA_PATH}/Build/Products"

@@ -9,6 +9,7 @@ import type {
   RegisterRequest,
   RegisterResponse,
   ResetPasswordRequest,
+  VerifyEmailRequest,
 } from "./types";
 
 export const authApi = {
@@ -35,5 +36,9 @@ export const authApi = {
 
   async resetPassword(request: ResetPasswordRequest): Promise<void> {
     await apiClient.post(endpoints.auth.resetPassword, request);
+  },
+
+  async verifyEmail(request: VerifyEmailRequest): Promise<void> {
+    await apiClient.post(endpoints.auth.verifyEmail, request);
   },
 };

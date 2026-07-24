@@ -12,6 +12,19 @@ jest.mock("@/api/auth", () => ({
   },
 }));
 
+jest.mock("@/services/localDatabase", () => ({
+  LocalDatabase: {
+    ready: jest.fn(async () => true),
+    clearAllUserData: jest.fn(async () => undefined),
+    setQueryCache: jest.fn(async () => undefined),
+    getQueryCache: jest.fn(async () => null),
+  },
+}));
+
+jest.mock("@/utils/timeZone", () => ({
+  syncDeviceTimeZone: jest.fn(async () => undefined),
+}));
+
 import { authApi } from "@/api/auth";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useLogin } from "@/hooks/useAuthMutations";
