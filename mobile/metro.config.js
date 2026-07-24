@@ -4,8 +4,9 @@ const exclusionList = require("metro-config/private/defaults/exclusionList").def
 
 const config = getDefaultConfig(__dirname);
 
-// CapTap lives on iCloud Desktop — ignore native/build trees so File Provider
-// churn doesn't spam Expo Fast Refresh ("Refreshing..." banner).
+// CapTap lives on iCloud Desktop — ignore native build trees so File Provider
+// churn doesn't spam Expo Fast Refresh. Do NOT ignore node_modules/**/ios/**
+// source folders (e.g. react-native-screens) or Metro cannot resolve them.
 config.resolver.blockList = exclusionList([
   /\/\.git\/.*/,
   /\/ios\/Pods\/.*/,
@@ -14,8 +15,8 @@ config.resolver.blockList = exclusionList([
   /\/android\/build\/.*/,
   /\/android\/app\/build\/.*/,
   /\/coverage\/.*/,
-  /\/node_modules\/.*\/android\/.*/,
-  /\/node_modules\/.*\/ios\/.*/,
+  /\/node_modules\/.*\/ios\/Pods\/.*/,
+  /\/node_modules\/.*\/android\/build\/.*/,
   /\/node_modules\/expo-modules-jsi\/apple\/(Products|\.DerivedData|\.build|\.swiftpm|\.generated)\/.*/,
 ]);
 
