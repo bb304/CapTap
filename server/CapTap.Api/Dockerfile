@@ -2,7 +2,7 @@
 # Build from repo root:
 #   docker build -f server/CapTap.Api/Dockerfile -t captap-api .
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY server/CapTap.Api/CapTap.Api.csproj CapTap.Api/
