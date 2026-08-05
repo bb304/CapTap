@@ -182,10 +182,12 @@ npm run build:dev:ios     # or build:dev:android
 
 ## CI / CD
 
-| Workflow | Trigger | What it does |
-|----------|---------|--------------|
+| Workflow / config | Trigger | What it does |
+|-------------------|---------|--------------|
 | `.github/workflows/ci.yml` | PR / push to `main`/`develop` | Format, build, test, coverage, Docker build |
 | `.github/workflows/release.yml` | `v*` tags or manual | Push API image to GHCR |
+| `.github/workflows/codeql.yml` | PR / push to `main`/`develop` + weekly | CodeQL analysis (C# + JavaScript) |
+| `.github/dependabot.yml` | Weekly | NuGet, npm, GitHub Actions, and API Docker base image updates |
 
 ## Security decisions
 
@@ -221,6 +223,10 @@ Capture on a development build for demos (Welcome, Dashboard, NFC confirm, Offli
 
 | Doc | Topic |
 |-----|--------|
+| `docs/architecture/system-context.md` | System context, layering, trust boundaries |
+| `docs/architecture/sequences.md` | Auth refresh reuse, offline 409 sync, soft-delete |
+| `docs/security/threat-model.md` | STRIDE-lite threat model |
+| `docs/adr/README.md` | Architecture Decision Records |
 | `docs/user-testing-readiness.md` | Doc vs code audit + tester caveats |
 | `docs/account-privacy.md` | Soft-delete, anonymize, retain logs |
 | `docs/final-demo.md` | Demo script, Android-first device path, airplane E2E |
@@ -243,14 +249,20 @@ Capture on a development build for demos (Welcome, Dashboard, NFC confirm, Offli
 
 ```
 CapTap/
-├── mobile/              # React Native (Expo) app
-├── server/              # ASP.NET Core Clean Architecture
-├── tests/               # xUnit test projects
-├── infrastructure/      # AWS bootstrap examples
-├── docs/                # Product and engineering docs
-├── scripts/             # Utility scripts
-├── docker-compose.yml   # Postgres (+ optional API profile)
-└── .github/workflows/   # CI + release
+├── mobile/                 # React Native (Expo) app
+├── server/                 # ASP.NET Core Clean Architecture
+├── tests/                  # xUnit test projects
+├── infrastructure/         # AWS bootstrap examples
+├── docs/
+│   ├── adr/                # Architecture Decision Records
+│   ├── architecture/       # System context + sequence diagrams
+│   ├── security/           # Threat model
+│   └── …                   # Feature and ops docs
+├── scripts/                # Utility scripts
+├── docker-compose.yml      # Postgres (+ optional API profile)
+└── .github/
+    ├── dependabot.yml      # Dependency update PRs
+    └── workflows/          # CI, CodeQL, release
 ```
 
 ## Future roadmap
